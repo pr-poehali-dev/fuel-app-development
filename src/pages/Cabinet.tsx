@@ -74,104 +74,231 @@ const mockUser = {
   segment: "Клиент СИНЕД",
 };
 
-type AuthMethod = "email" | "phone" | null;
+const AUTH_URL = "https://functions.poehali.dev/7d46cc7a-17f2-4443-b62e-cf6770ab15d8";
 
-function LoginScreen({ onLogin }: { onLogin: (name: string) => void }) {
+type AuthStep = "choose" | "contact" | "code" | "name";
+type AuthMethodId = "email" | "tg" | "phone" | "vk" | "max";
+
+interface UserData {
+  token: string; user_id: string; contact: string;
+  method: string; name: string; org: string;
+}
+
+const AUTH_METHODS: { id: AuthMethodId; label: string; desc: string; placeholder: string; icon: string; color: string }[] = [
+  { id: "email", label: "Email",      desc: "Код придёт на почту",           placeholder: "example@mail.ru",  icon: "Mail",    color: "hover:border-blue-400/50 hover:bg-blue-50" },
+  { id: "tg",    label: "Telegram",   desc: "Напишите боту, получите код",   placeholder: "@username",        icon: "Send",    color: "hover:border-[#2AABEE]/50 hover:bg-sky-50" },
+  { id: "phone", label: "Телефон",    desc: "Код придёт в Telegram по номеру", placeholder: "+7 999 000-00-00", icon: "Phone",  color: "hover:border-[hsl(var(--ocean)/0.5)] hover:bg-[hsl(var(--ice))]" },
+  { id: "vk",    label: "ВКонтакте", desc: "Ссылка придёт в VK сообщения",  placeholder: "@vk_username",     icon: "Users",   color: "hover:border-[#4C75A3]/50 hover:bg-blue-50" },
+  { id: "max",   label: "Макс",       desc: "Код придёт в мессенджер Макс",  placeholder: "@username в Макс", icon: "Zap",     color: "hover:border-orange-400/50 hover:bg-orange-50" },
+];
+
+function methodLabel(id: string) {
+  return AUTH_METHODS.find(m => m.id === id)?.label || id;
+}
+
+function LoginScreen({ onLogin }: { onLogin: (u: UserData) => void }) {
   const navigate = useNavigate();
-  const [method, setMethod] = useState<AuthMethod>(null);
-  const [input, setInput] = useState("");
+  const [step, setStep] = useState<AuthStep>("choose");
+  const [method, setMethod] = useState<AuthMethodId>("email");
+  const [contact, setContact] = useState("");
+  const [code, setCode] = useState("");
   const [name, setName] = useState("");
-  const [step, setStep] = useState<"choose" | "form">("choose");
+  const [org, setOrg] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [info, setInfo] = useState("");
+  const [timer, setTimer] = useState(0);
 
-  const handleSubmit = () => {
-    if (name.trim() && input.trim()) {
-      localStorage.setItem("sined_user", JSON.stringify({ name: name.trim(), contact: input.trim(), method }));
-      onLogin(name.trim());
-    }
+  const startTimer = () => {
+    setTimer(60);
+    const iv = setInterval(() => setTimer(t => { if (t <= 1) { clearInterval(iv); return 0; } return t - 1; }), 1000);
   };
 
-  const socials = [
-    { id: "tg",   label: "Telegram",  icon: "Send",          color: "hover:border-[#2AABEE]/50 hover:bg-[#2AABEE]/8" },
-    { id: "wa",   label: "WhatsApp",  icon: "MessageCircle", color: "hover:border-[#25D366]/50 hover:bg-[#25D366]/8" },
-    { id: "max",  label: "Макс",      icon: "Zap",           color: "hover:border-orange-400/50 hover:bg-orange-50" },
-    { id: "vk",   label: "ВКонтакте", icon: "Users",         color: "hover:border-[#4C75A3]/50 hover:bg-[#4C75A3]/8" },
-  ];
+  const handleSendCode = async () => {
+    if (!contact.trim()) return;
+    setLoading(true); setError("");
+    try {
+      const res = await fetch(`${AUTH_URL}/send`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ method, contact: contact.trim() }),
+      });
+      const data = await res.json();
+      if (data.error) { setError(data.error); return; }
+      setInfo(data.info || "Код отправлен");
+      setStep("code");
+      startTimer();
+    } catch { setError("Ошибка соединения"); }
+    finally { setLoading(false); }
+  };
+
+  const handleVerify = async () => {
+    if (code.length !== 6) return;
+    setLoading(true); setError("");
+    try {
+      const res = await fetch(`${AUTH_URL}/verify`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ method, contact: contact.trim(), code, name, org }),
+      });
+      const data = await res.json();
+      if (data.error) { setError(data.error); return; }
+      const userData: UserData = { ...data, name: name || data.contact };
+      localStorage.setItem("sined_token", data.token);
+      localStorage.setItem("sined_user", JSON.stringify(userData));
+      onLogin(userData);
+    } catch { setError("Ошибка соединения"); }
+    finally { setLoading(false); }
+  };
+
+  const selectedMethod = AUTH_METHODS.find(m => m.id === method)!;
 
   return (
     <div className="min-h-screen bg-[hsl(var(--background))]">
       <Navbar />
-      <div className="pt-24 max-w-lg mx-auto px-4 pb-12">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--lime))] flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <Icon name="User" size={28} className="text-white" />
+      <div className="pt-20 max-w-md mx-auto px-4 pb-12">
+
+        {/* Header */}
+        <div className="text-center py-8">
+          <div className="w-16 h-16 rounded-2xl bg-[hsl(var(--navy))] flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <Icon name="Lock" size={28} className="text-[hsl(var(--sky))]" />
           </div>
-          <h1 className="font-golos font-black text-[hsl(var(--navy))] text-2xl mb-2">Личный кабинет</h1>
-          <p className="font-ibm text-[hsl(var(--muted-foreground))] text-sm">
-            Войдите, чтобы отслеживать заявки и доставку
-          </p>
+          <h1 className="font-golos font-black text-[hsl(var(--navy))] text-2xl mb-1">Личный кабинет</h1>
+          <p className="font-ibm text-[hsl(var(--muted-foreground))] text-sm">Отслеживайте заявки и доставку</p>
         </div>
 
-        {step === "choose" ? (
-          <div className="card-glass p-6 border border-[hsl(var(--border))]">
-            <p className="font-golos font-bold text-[hsl(var(--navy))] text-sm mb-4 text-center">Войти через</p>
-            <div className="space-y-2 mb-5">
-              <button onClick={() => { setMethod("email"); setStep("form"); }}
-                className="w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[hsl(var(--border))] hover:border-[hsl(var(--ocean)/0.4)] hover:bg-[hsl(var(--ice))] transition-all font-ibm text-sm text-[hsl(var(--navy))]">
-                <Icon name="Mail" size={18} className="text-[hsl(var(--ocean))]" />
-                Email
-              </button>
-              <button onClick={() => { setMethod("phone"); setStep("form"); }}
-                className="w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[hsl(var(--border))] hover:border-[hsl(var(--ocean)/0.4)] hover:bg-[hsl(var(--ice))] transition-all font-ibm text-sm text-[hsl(var(--navy))]">
-                <Icon name="Phone" size={18} className="text-[hsl(var(--ocean))]" />
-                Номер телефона
-              </button>
-              {socials.map((s) => (
-                <button key={s.id} onClick={() => { setMethod(s.id as AuthMethod); setStep("form"); }}
-                  className={`w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[hsl(var(--border))] ${s.color} transition-all font-ibm text-sm text-[hsl(var(--navy))]`}>
-                  <Icon name={s.icon} size={18} className="text-[hsl(var(--muted-foreground))]" />
-                  {s.label}
+        {/* STEP 1 — выбор метода */}
+        {step === "choose" && (
+          <div className="card-glass border border-[hsl(var(--border))] overflow-hidden">
+            <div className="px-5 py-4 border-b border-[hsl(var(--border))]">
+              <p className="font-golos font-bold text-[hsl(var(--navy))] text-sm text-center">Выберите способ входа</p>
+            </div>
+            <div className="p-3 space-y-1.5">
+              {AUTH_METHODS.map((m) => (
+                <button key={m.id} onClick={() => { setMethod(m.id); setStep("contact"); setContact(""); setError(""); }}
+                  className={`w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[hsl(var(--border))] ${m.color} transition-all text-left`}>
+                  <Icon name={m.icon} size={18} className="text-[hsl(var(--ocean))] flex-shrink-0" />
+                  <div>
+                    <div className="font-golos font-semibold text-[hsl(var(--navy))] text-sm">{m.label}</div>
+                    <div className="font-ibm text-[hsl(var(--muted-foreground))] text-[11px]">{m.desc}</div>
+                  </div>
+                  <Icon name="ChevronRight" size={15} className="text-[hsl(var(--muted-foreground))] ml-auto" />
                 </button>
               ))}
             </div>
-            <div className="border-t border-[hsl(var(--border))] pt-4 text-center">
-              <p className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-3">Или без регистрации:</p>
+            <div className="px-5 py-4 border-t border-[hsl(var(--border))] bg-[hsl(var(--muted)/0.5)]">
+              <p className="font-ibm text-xs text-[hsl(var(--muted-foreground))] text-center mb-3">Или без регистрации:</p>
               <button onClick={() => navigate("/chat")}
                 className="w-full py-2.5 rounded-xl border border-[hsl(var(--ocean)/0.3)] text-[hsl(var(--ocean))] text-sm font-ibm font-medium hover:bg-[hsl(var(--ice))] transition-colors">
                 Оставить заявку →
               </button>
             </div>
           </div>
-        ) : (
-          <div className="card-glass p-6 border border-[hsl(var(--border))]">
-            <button onClick={() => setStep("choose")} className="flex items-center gap-2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--ocean))] text-sm font-ibm mb-5 transition-colors">
-              <Icon name="ArrowLeft" size={15} />
-              Назад
+        )}
+
+        {/* STEP 2 — ввод контакта */}
+        {step === "contact" && (
+          <div className="card-glass border border-[hsl(var(--border))] p-6">
+            <button onClick={() => { setStep("choose"); setError(""); }}
+              className="flex items-center gap-2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--ocean))] text-sm font-ibm mb-5 transition-colors">
+              <Icon name="ArrowLeft" size={15} /> Назад
             </button>
-            <p className="font-golos font-bold text-[hsl(var(--navy))] text-sm mb-4">
-              Войти через {method === "email" ? "Email" : method === "phone" ? "телефон" : method === "tg" ? "Telegram" : method === "wa" ? "WhatsApp" : method === "max" ? "Макс" : method === "vk" ? "ВКонтакте" : method}
-            </p>
-            <div className="space-y-3">
-              <div>
-                <label className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-1 block">Ваше имя или организация</label>
-                <input value={name} onChange={e => setName(e.target.value)}
-                  placeholder="Иванов Иван / ООО Ромашка"
-                  className="w-full bg-[hsl(var(--muted))] rounded-xl px-4 py-3 text-sm font-ibm outline-none focus:ring-2 focus:ring-[hsl(var(--ocean)/0.3)]" />
+
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-[hsl(var(--ice))] flex items-center justify-center flex-shrink-0">
+                <Icon name={selectedMethod.icon} size={18} className="text-[hsl(var(--ocean))]" />
               </div>
               <div>
-                <label className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-1 block">
-                  {method === "email" ? "Email" : method === "phone" ? "Номер телефона" : `${method} username или телефон`}
-                </label>
-                <input value={input} onChange={e => setInput(e.target.value)}
-                  placeholder={method === "email" ? "example@mail.ru" : method === "phone" ? "+7 999 000-00-00" : "@username"}
-                  className="w-full bg-[hsl(var(--muted))] rounded-xl px-4 py-3 text-sm font-ibm outline-none focus:ring-2 focus:ring-[hsl(var(--ocean)/0.3)]" />
+                <div className="font-golos font-bold text-[hsl(var(--navy))] text-sm">Вход через {selectedMethod.label}</div>
+                <div className="font-ibm text-[hsl(var(--muted-foreground))] text-xs">{selectedMethod.desc}</div>
               </div>
             </div>
-            <button onClick={handleSubmit} disabled={!name.trim() || !input.trim()}
-              className="w-full btn-primary py-3 mt-4 disabled:opacity-40 disabled:cursor-not-allowed">
-              Войти
+
+            {method === "tg" && (
+              <div className="bg-[hsl(var(--ice))] border border-[hsl(var(--sky)/0.3)] rounded-xl p-3 mb-4">
+                <p className="font-ibm text-xs text-[hsl(var(--navy)/0.8)] leading-relaxed">
+                  <strong>Шаг 1:</strong> Найдите бота <strong>@sinedauth_bot</strong> в Telegram и нажмите /start<br/>
+                  <strong>Шаг 2:</strong> Введите ваш @username ниже и нажмите «Получить код»
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <div>
+                <label className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-1.5 block font-medium">
+                  {method === "email" ? "Email-адрес" : method === "phone" ? "Номер телефона" : `${selectedMethod.label} — username`}
+                </label>
+                <input value={contact} onChange={e => setContact(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleSendCode()}
+                  placeholder={selectedMethod.placeholder} type={method === "email" ? "email" : "text"}
+                  className="w-full bg-[hsl(var(--muted))] rounded-xl px-4 py-3 text-sm font-ibm outline-none focus:ring-2 focus:ring-[hsl(var(--ocean)/0.3)] transition-all" />
+              </div>
+            </div>
+
+            {error && <p className="text-red-500 text-xs font-ibm mt-3 flex items-center gap-1"><Icon name="AlertCircle" size={13} />{error}</p>}
+
+            <button onClick={handleSendCode} disabled={!contact.trim() || loading}
+              className="w-full btn-primary py-3 mt-4 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              {loading ? <><Icon name="Loader" size={16} className="animate-spin" /> Отправляем...</> : "Получить код"}
             </button>
+          </div>
+        )}
+
+        {/* STEP 3 — ввод кода */}
+        {step === "code" && (
+          <div className="card-glass border border-[hsl(var(--border))] p-6">
+            <button onClick={() => { setStep("contact"); setCode(""); setError(""); }}
+              className="flex items-center gap-2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--ocean))] text-sm font-ibm mb-5 transition-colors">
+              <Icon name="ArrowLeft" size={15} /> Назад
+            </button>
+
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-3">
+                <Icon name="CheckCircle" size={22} className="text-emerald-600" />
+              </div>
+              <h3 className="font-golos font-bold text-[hsl(var(--navy))] text-base mb-1">Код отправлен</h3>
+              <p className="font-ibm text-[hsl(var(--muted-foreground))] text-sm">{info}</p>
+            </div>
+
+            <div className="mb-5">
+              <label className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-1.5 block font-medium">Введите 6-значный код</label>
+              <input value={code} onChange={e => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                onKeyDown={e => e.key === "Enter" && code.length === 6 && handleVerify()}
+                placeholder="000000" maxLength={6} type="text" inputMode="numeric"
+                className="w-full bg-[hsl(var(--muted))] rounded-xl px-4 py-4 text-2xl font-golos font-black text-center tracking-[0.5em] outline-none focus:ring-2 focus:ring-[hsl(var(--ocean)/0.3)]" />
+            </div>
+
+            {/* Имя (опционально) */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div>
+                <label className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-1 block">Имя (необязательно)</label>
+                <input value={name} onChange={e => setName(e.target.value)} placeholder="Иванов И."
+                  className="w-full bg-[hsl(var(--muted))] rounded-xl px-3 py-2.5 text-sm font-ibm outline-none focus:ring-2 focus:ring-[hsl(var(--ocean)/0.3)]" />
+              </div>
+              <div>
+                <label className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-1 block">Организация</label>
+                <input value={org} onChange={e => setOrg(e.target.value)} placeholder="ООО Ромашка"
+                  className="w-full bg-[hsl(var(--muted))] rounded-xl px-3 py-2.5 text-sm font-ibm outline-none focus:ring-2 focus:ring-[hsl(var(--ocean)/0.3)]" />
+              </div>
+            </div>
+
+            {error && <p className="text-red-500 text-xs font-ibm mb-3 flex items-center gap-1"><Icon name="AlertCircle" size={13} />{error}</p>}
+
+            <button onClick={handleVerify} disabled={code.length !== 6 || loading}
+              className="w-full btn-primary py-3 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              {loading ? <><Icon name="Loader" size={16} className="animate-spin" /> Проверяем...</> : "Войти"}
+            </button>
+
+            <div className="mt-4 text-center">
+              {timer > 0 ? (
+                <p className="font-ibm text-xs text-[hsl(var(--muted-foreground))]">Повторная отправка через {timer} сек</p>
+              ) : (
+                <button onClick={() => { handleSendCode(); }} className="font-ibm text-xs text-[hsl(var(--ocean))] hover:underline">
+                  Отправить код ещё раз
+                </button>
+              )}
+            </div>
+
             <p className="font-ibm text-[10px] text-[hsl(var(--muted-foreground))] text-center mt-3 leading-relaxed">
-              Нажимая «Войти», вы соглашаетесь с обработкой персональных данных согласно ФЗ-152
+              Входя в систему, вы соглашаетесь с обработкой персональных данных согласно ФЗ-152
             </p>
           </div>
         )}
@@ -184,16 +311,13 @@ export default function Cabinet() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"orders" | "profile">("orders");
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
-  const [user, setUser] = useState<{ name: string; contact: string; method: string } | null>(() => {
+  const [user, setUser] = useState<UserData | null>(() => {
     try { return JSON.parse(localStorage.getItem("sined_user") || "null"); } catch { return null; }
   });
 
   const selected = mockOrders.find((o) => o.id === selectedOrder);
 
-  if (!user) return <LoginScreen onLogin={(name) => {
-    const stored = JSON.parse(localStorage.getItem("sined_user") || "{}");
-    setUser(stored);
-  }} />;
+  if (!user) return <LoginScreen onLogin={(u) => setUser(u)} />;
 
   return (
     <div className="min-h-screen bg-[hsl(var(--background))]">
@@ -204,19 +328,21 @@ export default function Cabinet() {
         <div className="mb-6 animate-fade-in">
           <div className="card-glass border border-[hsl(var(--border))] p-5 flex items-center justify-between gap-3">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--lime))] flex items-center justify-center shadow-md flex-shrink-0">
-                <Icon name="User" size={22} className="text-white" />
+              <div className="w-12 h-12 rounded-2xl bg-[hsl(var(--navy))] flex items-center justify-center shadow-md flex-shrink-0">
+                <Icon name="User" size={22} className="text-[hsl(var(--sky))]" />
               </div>
               <div>
-                <h1 className="font-golos font-black text-[hsl(var(--navy))] text-xl sm:text-2xl leading-tight">{user?.name || "Личный кабинет"}</h1>
+                <h1 className="font-golos font-black text-[hsl(var(--navy))] text-xl sm:text-2xl leading-tight">
+                  {user?.name || user?.org || user?.contact || "Личный кабинет"}
+                </h1>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className="inline-flex items-center gap-1 bg-[hsl(var(--green-bg))] text-[hsl(var(--lime))] text-[10px] font-golos font-semibold px-2 py-0.5 rounded-full border border-[hsl(var(--lime)/0.3)]">
+                  <span className="inline-flex items-center gap-1 bg-[hsl(var(--ice))] text-[hsl(var(--ocean))] text-[10px] font-golos font-semibold px-2 py-0.5 rounded-full border border-[hsl(var(--sky)/0.3)]">
                     <Icon name="CheckCircle" size={10} />
                     Авторизован
                   </span>
                   {user?.method && (
                     <span className="text-[10px] font-ibm text-[hsl(var(--muted-foreground))]">
-                      через {user.method === "tg" ? "Telegram" : user.method === "wa" ? "WhatsApp" : user.method === "max" ? "Макс" : user.method === "vk" ? "ВКонтакте" : user.method === "phone" ? "телефон" : "email"}
+                      через {methodLabel(user.method)} • {user.contact}
                     </span>
                   )}
                 </div>

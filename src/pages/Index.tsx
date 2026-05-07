@@ -5,7 +5,7 @@ import Icon from "@/components/ui/icon";
 
 const PRICES_URL = "https://functions.poehali.dev/cb3618e5-4d1d-41cf-b3ad-80626a79623b";
 
-const IMG_TRUCK    = "https://cdn.poehali.dev/projects/4cf0026b-b564-47e3-8a8c-63d826844795/files/46d748d1-e608-49cf-a1c3-67e6b65611d3.jpg";
+const IMG_TRUCK    = "https://cdn.poehali.dev/projects/4cf0026b-b564-47e3-8a8c-63d826844795/files/f9141a5d-925e-41ea-8a90-b143fac2f693.jpg";
 const IMG_BOILER   = "https://cdn.poehali.dev/projects/4cf0026b-b564-47e3-8a8c-63d826844795/files/a72afbaa-dd80-45b2-b3e0-1185d9d3a6c5.jpg";
 const IMG_BARRELS  = "https://cdn.poehali.dev/projects/4cf0026b-b564-47e3-8a8c-63d826844795/files/70002b14-51c1-46c6-b7ac-b0642901cdf7.jpg";
 

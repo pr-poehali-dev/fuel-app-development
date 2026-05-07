@@ -1,4 +1,5 @@
 {
+  "auth": "https://functions.poehali.dev/7d46cc7a-17f2-4443-b62e-cf6770ab15d8",
   "sessions": "https://functions.poehali.dev/826f5bd1-4498-4271-9580-5a9d7c7a379d",
   "notify": "https://functions.poehali.dev/a9663a74-1164-44b6-b35f-51e91189827a",
   "prices": "https://functions.poehali.dev/cb3618e5-4d1d-41cf-b3ad-80626a79623b",
