@@ -243,22 +243,38 @@ export default function DiscountWheel({ open, onClose, onTokens }: Props) {
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // Текст
+      // Текст ровно по центру сектора
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(start + sectorAngle / 2);
       ctx.fillStyle = p.textColor;
       ctx.font = `bold ${p.short.length > 4 ? 11 : 14}px 'Golos Text', sans-serif`;
       ctx.textAlign = "right";
-      ctx.fillText(p.short, r - 14, 5);
+      ctx.textBaseline = "middle";
+      ctx.fillText(p.short, r - 16, 0);
       if (p.rarity === "legend") {
         ctx.fillStyle = "#fde047";
         ctx.beginPath();
-        ctx.arc(r - 50, 0, 3, 0, Math.PI * 2);
+        ctx.arc(r - 52, 0, 3, 0, Math.PI * 2);
         ctx.fill();
       }
       ctx.restore();
     }
+    ctx.textBaseline = "alphabetic";
+
+    // Тонкие риски-указатели в центре каждого сектора (для отладки попадания)
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.strokeStyle = "rgba(255,255,255,0.35)";
+    ctx.lineWidth = 1;
+    for (let i = 0; i < PRIZES.length; i++) {
+      const a = rot + i * sectorAngle + sectorAngle / 2;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * (r - 4), Math.sin(a) * (r - 4));
+      ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      ctx.stroke();
+    }
+    ctx.restore();
 
     // Центр
     const centerGrad = ctx.createRadialGradient(cx - 6, cy - 6, 5, cx, cy, 32);
@@ -350,12 +366,19 @@ export default function DiscountWheel({ open, onClose, onTokens }: Props) {
 
     const idx = pickPrize();
     const sectorAngle = (Math.PI * 2) / PRIZES.length;
+    // Целевой угол: центр выпавшего сектора должен встать под стрелкой (-π/2 = сверху)
     const target = -Math.PI / 2 - (idx * sectorAngle + sectorAngle / 2);
-    const turns = 7 + Math.random() * 3;
-    const finalAngle = target + Math.PI * 2 * turns;
+    // ЦЕЛОЕ количество оборотов + лёгкий джиттер ВНУТРИ сектора (чтобы стрелка
+    // не всегда попадала в одну и ту же точку, но всегда — в этот сектор)
+    const turns = 7 + Math.floor(Math.random() * 4);
+    const jitter = (Math.random() - 0.5) * sectorAngle * 0.6;
+    const startAngle = angle % (Math.PI * 2);
+    // Делаем target ВСЕГДА больше startAngle, чтобы колесо крутилось вперёд
+    let normalizedTarget = target;
+    while (normalizedTarget <= startAngle) normalizedTarget += Math.PI * 2;
+    const finalAngle = normalizedTarget + Math.PI * 2 * turns + jitter;
 
     const startTime = performance.now();
-    const startAngle = angle % (Math.PI * 2);
     const duration = 5500;
 
     const animate = (now: number) => {
