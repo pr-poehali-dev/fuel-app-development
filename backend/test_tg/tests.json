@@ -1,5 +1,0 @@
-{
-  "tests": [
-    {"name": "Run test", "method": "GET", "path": "/", "expectedStatus": 200}
-  ]
-}
