@@ -42,7 +42,7 @@ const clients = [
 
 const steps = [
   { n: "01", icon: "MessageSquare", title: "Напишите Денису",     desc: "ИИ-консультант соберёт данные: топливо, объём, адрес и дату" },
-  { n: "02", icon: "Phone",         title: "Менеджер перезвонит", desc: "В течение 30 минут уточнит финальную цену и условия" },
+  { n: "02", icon: "Phone",         title: "Менеджер перезвонит", desc: "В течение 30 минут для окончательного подтверждения отгрузки" },
   { n: "03", icon: "Navigation",    title: "Доставка с GPS",      desc: "Отслеживайте автомобиль в реальном времени на карте" },
 ];
 
@@ -93,14 +93,14 @@ export default function Index() {
         <div className="relative max-w-7xl mx-auto px-4 py-20 sm:py-28">
           <div className="max-w-2xl">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-[hsl(var(--lime)/0.2)] border border-[hsl(var(--lime)/0.4)] text-[hsl(var(--lime2))] text-xs font-golos font-semibold px-4 py-2 rounded-full uppercase tracking-wider mb-6">
+            <div className="inline-flex items-center gap-2 bg-white/10 border border-white/25 text-[hsl(var(--sky))] text-xs font-golos font-semibold px-4 py-2 rounded-full uppercase tracking-wider mb-6">
               <Icon name="MapPin" size={12} />
               Северо-западный регион — СПб и Ленинградская область
             </div>
 
             <h1 className="font-golos font-black text-white text-4xl sm:text-5xl lg:text-[3.5rem] leading-[1.08] mb-6">
               Поставки<br />
-              <span className="text-[hsl(var(--lime2))]">топлива</span><br />
+              <span className="text-[hsl(var(--sky))]">топлива</span><br />
               для вашего бизнеса
             </h1>
 
@@ -126,7 +126,7 @@ export default function Index() {
             <div className="flex flex-wrap gap-8">
               {[["2025", "год основания"], ["500+", "клиентов"], ["24/7", "поддержка"], ["7", "видов топлива"]].map(([v, l]) => (
                 <div key={l}>
-                  <div className="font-golos font-black text-[hsl(var(--lime2))] text-2xl">{v}</div>
+                  <div className="font-golos font-black text-[hsl(var(--sky))] text-2xl">{v}</div>
                   <div className="font-ibm text-white/55 text-xs mt-0.5">{l}</div>
                 </div>
               ))}
@@ -139,7 +139,7 @@ export default function Index() {
       <section className="py-16 px-4 bg-[hsl(var(--navy))]">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-10">
-            <div className="inline-flex items-center gap-1.5 bg-[hsl(var(--lime)/0.15)] border border-[hsl(var(--lime)/0.3)] text-[hsl(var(--lime2))] text-xs font-golos font-semibold px-3 py-1.5 rounded-full uppercase tracking-wider mb-4">
+            <div className="inline-flex items-center gap-1.5 bg-white/10 border border-white/20 text-[hsl(var(--sky))] text-xs font-golos font-semibold px-3 py-1.5 rounded-full uppercase tracking-wider mb-4">
               Клиенты
             </div>
             <h2 className="font-golos font-black text-white text-3xl sm:text-4xl">Кого мы обслуживаем</h2>
@@ -148,10 +148,10 @@ export default function Index() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {clients.map((c, i) => (
               <div key={c.label}
-                className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[hsl(var(--lime)/0.3)] rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1 animate-fade-in group"
+                className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[hsl(var(--sky)/0.3)] rounded-2xl p-6 transition-all duration-200 hover:-translate-y-1 animate-fade-in"
                 style={{ animationDelay: `${i * 0.08}s` }}>
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[hsl(var(--ocean)/0.5)] to-[hsl(var(--lime)/0.3)] flex items-center justify-center mb-4 group-hover:from-[hsl(var(--lime)/0.4)] group-hover:to-[hsl(var(--ocean)/0.4)] transition-all">
-                  <Icon name={c.icon} size={22} className="text-[hsl(var(--lime2))]" />
+                <div className="w-12 h-12 rounded-xl bg-[hsl(var(--ocean)/0.4)] flex items-center justify-center mb-4">
+                  <Icon name={c.icon} size={22} className="text-[hsl(var(--sky))]" />
                 </div>
                 <h3 className="font-golos font-bold text-white text-base mb-2">{c.label}</h3>
                 <p className="font-ibm text-white/55 text-sm leading-relaxed">{c.desc}</p>
@@ -171,19 +171,19 @@ export default function Index() {
                 <img src={IMG_BOILER} alt="Котельная" className="w-full h-full object-cover" />
               </div>
               {/* Floating badge */}
-              <div className="absolute -bottom-4 -right-4 bg-white rounded-2xl shadow-xl p-4 border border-[hsl(var(--lime)/0.2)]">
-                <div className="font-golos font-black text-[hsl(var(--lime))] text-2xl">7</div>
+              <div className="absolute -bottom-4 -right-4 bg-white rounded-2xl shadow-xl p-4 border border-[hsl(var(--sky)/0.2)]">
+                <div className="font-golos font-black text-[hsl(var(--ocean))] text-2xl">7</div>
                 <div className="font-ibm text-[hsl(var(--navy))] text-xs font-medium">видов топлива</div>
               </div>
               <div className="absolute -top-4 -left-4 bg-[hsl(var(--navy))] rounded-2xl shadow-xl p-4">
-                <div className="font-golos font-black text-[hsl(var(--lime2))] text-xl">24/7</div>
+                <div className="font-golos font-black text-[hsl(var(--sky))] text-xl">24/7</div>
                 <div className="font-ibm text-white/70 text-xs">поддержка</div>
               </div>
             </div>
 
             {/* Преимущества */}
             <div>
-              <div className="inline-flex items-center gap-1.5 bg-[hsl(var(--green-bg))] border border-[hsl(var(--lime)/0.3)] text-[hsl(var(--lime))] text-xs font-golos font-semibold px-3 py-1.5 rounded-full uppercase tracking-wider mb-5">
+              <div className="section-badge mb-5">
                 Почему СИНЕД
               </div>
               <h2 className="font-golos font-black text-[hsl(var(--navy))] text-3xl sm:text-4xl mb-6 leading-tight">
@@ -193,12 +193,12 @@ export default function Index() {
                 {[
                   { icon: "FileCheck",   title: "Полный пакет документов",      desc: "Договор поставки, счёт, товарная накладная, сертификат качества" },
                   { icon: "Navigation",  title: "GPS-отслеживание в реальном времени", desc: "Следите за местоположением водителя прямо в личном кабинете" },
-                  { icon: "Clock",       title: "Ответ за 30 минут",            desc: "Менеджер перезвонит и подтвердит цену в течение получаса" },
+                  { icon: "Clock",       title: "Ответ за 30 минут",            desc: "Менеджер перезвонит для окончательного подтверждения отгрузки" },
                   { icon: "MapPin",      title: "Северо-западный регион",       desc: "Работаем по всему Санкт-Петербургу и Ленинградской области" },
                 ].map((item) => (
                   <div key={item.title} className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[hsl(var(--ocean)/0.1)] to-[hsl(var(--lime)/0.15)] flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Icon name={item.icon} size={18} className="text-[hsl(var(--lime))]" />
+                    <div className="w-10 h-10 rounded-xl bg-[hsl(var(--ice))] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Icon name={item.icon} size={18} className="text-[hsl(var(--ocean))]" />
                     </div>
                     <div>
                       <div className="font-golos font-bold text-[hsl(var(--navy))] text-sm mb-0.5">{item.title}</div>
@@ -221,7 +221,7 @@ export default function Index() {
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
             <div>
-              <div className="inline-flex items-center gap-1.5 bg-[hsl(var(--lime)/0.15)] border border-[hsl(var(--lime)/0.3)] text-[hsl(var(--lime2))] text-xs font-golos font-semibold px-3 py-1.5 rounded-full uppercase tracking-wider mb-4">
+              <div className="section-badge mb-4">
                 <Icon name="Fuel" size={12} />
                 Ассортимент
               </div>
@@ -232,7 +232,7 @@ export default function Index() {
                 <span className="animate-pulse">Загрузка цен...</span>
               ) : pricesUpdated ? (
                 <>
-                  <div className="w-2 h-2 rounded-full bg-[hsl(var(--lime))] animate-pulse-dot" />
+                  <div className="w-2 h-2 rounded-full bg-[hsl(var(--sky))] animate-pulse-dot" />
                   Обновлено {pricesUpdated}
                 </>
               ) : null}
@@ -268,13 +268,13 @@ export default function Index() {
               );
             })}
             {/* Остальное по запросу */}
-            <div className="bg-gradient-to-br from-[hsl(var(--lime)/0.1)] to-transparent border border-[hsl(var(--lime)/0.25)] rounded-2xl p-5 flex flex-col justify-between">
+            <div className="bg-white/8 border border-white/20 rounded-2xl p-5 flex flex-col justify-between">
               <div>
                 <div className="font-golos font-bold text-white text-sm mb-2">Другие позиции</div>
                 <p className="font-ibm text-white/50 text-xs leading-relaxed">Судовое топливо, печное, авиационный керосин и другие — по запросу</p>
               </div>
               <button onClick={() => navigate("/chat")}
-                className="mt-4 w-full py-2 rounded-xl bg-[hsl(var(--lime)/0.2)] border border-[hsl(var(--lime)/0.3)] text-[hsl(var(--lime2))] text-xs font-ibm font-medium hover:bg-[hsl(var(--lime))] hover:text-white hover:border-transparent transition-all">
+                className="mt-4 w-full py-2 rounded-xl bg-white/10 border border-white/20 text-[hsl(var(--sky))] text-xs font-ibm font-medium hover:bg-[hsl(var(--ocean))] hover:text-white hover:border-transparent transition-all">
                 Уточнить
               </button>
             </div>
@@ -296,7 +296,7 @@ export default function Index() {
         <div className="max-w-7xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-10 items-center">
             <div>
-              <div className="inline-flex items-center gap-1.5 bg-[hsl(var(--green-bg))] border border-[hsl(var(--lime)/0.3)] text-[hsl(var(--lime))] text-xs font-golos font-semibold px-3 py-1.5 rounded-full uppercase tracking-wider mb-5">
+              <div className="section-badge mb-5">
                 <Icon name="Zap" size={12} />
                 Как это работает
               </div>
@@ -304,7 +304,7 @@ export default function Index() {
               <div className="space-y-6">
                 {steps.map((s, i) => (
                   <div key={s.n} className="flex items-start gap-5 animate-fade-in" style={{ animationDelay: `${i * 0.1}s` }}>
-                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--lime))] flex items-center justify-center shadow-md">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-2xl bg-[hsl(var(--ocean))] flex items-center justify-center shadow-md">
                       <Icon name={s.icon} size={20} className="text-white" />
                     </div>
                     <div>
@@ -327,9 +327,9 @@ export default function Index() {
               <div className="rounded-3xl overflow-hidden shadow-2xl aspect-[4/3]">
                 <img src={IMG_BARRELS} alt="Хранение топлива" className="w-full h-full object-cover" />
               </div>
-              <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur rounded-2xl p-4 shadow-lg border border-[hsl(var(--lime)/0.2)]">
+              <div className="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur rounded-2xl p-4 shadow-lg border border-[hsl(var(--sky)/0.2)]">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--lime))] flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-[hsl(var(--ocean))] flex items-center justify-center flex-shrink-0">
                     <Icon name="ShieldCheck" size={18} className="text-white" />
                   </div>
                   <div>
@@ -344,7 +344,7 @@ export default function Index() {
       </section>
 
       {/* ═══ CTA ═══ */}
-      <section className="py-16 px-4 bg-gradient-to-r from-[hsl(var(--ocean))] to-[hsl(var(--lime))]">
+      <section className="py-16 px-4 bg-[hsl(var(--navy))]">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="font-golos font-black text-white text-3xl sm:text-4xl mb-4">
             Нужно топливо?

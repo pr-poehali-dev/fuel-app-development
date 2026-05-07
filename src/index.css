@@ -37,15 +37,15 @@
 
     --radius: 0.75rem;
 
-    /* СИНЕД brand — точные цвета из логотипа (синий + зелёный + голубой) */
-    --navy: 218 55% 13%; /* тёмно-синий фон           */
+    /* СИНЕД brand — синий / голубой / тёмно-синий */
+    --navy: 218 55% 13%; /* тёмно-синий фон          */
     --ocean: 218 72% 38%; /* насыщенный синий          */
-    --sky: 198 85% 52%; /* голубой                   */
-    --teal: 162 60% 36%; /* сине-зелёный переход      */
-    --lime: 108 62% 40%; /* ярко-зелёный из логотипа  */
-    --lime2: 88 70% 48%; /* жёлто-зелёный акцент      */
+    --sky: 198 85% 52%; /* голубой акцент            */
+    --teal: 199 80% 42%; /* сине-голубой              */
+    --lime: 218 72% 38%; /* alias → ocean (не зелёный)*/
+    --lime2: 198 85% 52%; /* alias → sky               */
     --ice: 198 70% 93%; /* светло-голубой фон        */
-    --green-bg: 108 50% 95%; /* светло-зелёный фон       */
+    --green-bg: 198 60% 95%; /* светло-голубой (не зелёный)*/
   }
 }
 
@@ -57,9 +57,9 @@
   body {
     @apply bg-background text-foreground font-ibm;
     background-image:
-      radial-gradient(at 15% 0%, hsl(218 72% 38% / 0.06) 0px, transparent 55%),
-      radial-gradient(at 85% 5%, hsl(100 65% 38% / 0.05) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, hsl(198 85% 52% / 0.04) 0px, transparent 50%);
+      radial-gradient(at 15% 0%, hsl(218 72% 38% / 0.05) 0px, transparent 55%),
+      radial-gradient(at 85% 5%, hsl(198 85% 52% / 0.04) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, hsl(218 55% 13% / 0.03) 0px, transparent 50%);
   }
 
   h1,
@@ -78,19 +78,19 @@
   }
 
   .btn-green {
-    @apply bg-[hsl(var(--lime))] text-white font-golos font-semibold px-6 py-3 rounded-xl
-           hover:bg-[hsl(108_62%_32%)] transition-all duration-200 shadow-md hover:shadow-lg
+    @apply bg-[hsl(var(--ocean))] text-white font-golos font-semibold px-6 py-3 rounded-xl
+           hover:bg-[hsl(218_72%_30%)] transition-all duration-200 shadow-md hover:shadow-lg
            hover:-translate-y-0.5 active:translate-y-0;
   }
 
   .tag-green {
-    @apply bg-[hsl(var(--green-bg))] border border-[hsl(var(--lime)/0.35)] text-[hsl(var(--lime))]
+    @apply bg-[hsl(var(--ice))] border border-[hsl(var(--sky)/0.3)] text-[hsl(var(--ocean))]
            text-xs font-medium px-2.5 py-1 rounded-lg;
   }
 
   .btn-teal {
-    @apply bg-[hsl(var(--teal))] text-white font-golos font-semibold px-6 py-3 rounded-xl
-           hover:bg-[hsl(172_58%_32%)] transition-all duration-200;
+    @apply bg-[hsl(var(--ocean))] text-white font-golos font-semibold px-6 py-3 rounded-xl
+           hover:bg-[hsl(218_72%_30%)] transition-all duration-200;
   }
 
   .card-glass {
