@@ -114,8 +114,8 @@ export function formatDateTime(iso: string): string {
   } catch { return iso; }
 }
 
-export type AuthStep = "choose" | "contact" | "code" | "name";
-export type AuthMethodId = "email" | "tg" | "phone" | "vk" | "max";
+export type AuthStep = "choose" | "contact" | "code" | "name" | "password";
+export type AuthMethodId = "email" | "google" | "yandex" | "vk" | "tg" | "phone";
 
 export interface UserData {
   token: string; user_id: string; contact: string;
@@ -123,11 +123,12 @@ export interface UserData {
 }
 
 export const AUTH_METHODS: { id: AuthMethodId; label: string; desc: string; placeholder: string; icon: string; color: string }[] = [
-  { id: "email", label: "Email",      desc: "Код придёт на почту",           placeholder: "example@mail.ru",  icon: "Mail",    color: "hover:border-blue-400/50 hover:bg-blue-50" },
-  { id: "tg",    label: "Telegram",   desc: "Напишите боту, получите код",   placeholder: "@username",        icon: "Send",    color: "hover:border-[#2AABEE]/50 hover:bg-sky-50" },
-  { id: "phone", label: "Телефон",    desc: "Код придёт в Telegram по номеру", placeholder: "+7 999 000-00-00", icon: "Phone",  color: "hover:border-[hsl(var(--ocean)/0.5)] hover:bg-[hsl(var(--ice))]" },
-  { id: "vk",    label: "ВКонтакте", desc: "Ссылка придёт в VK сообщения",  placeholder: "@vk_username",     icon: "Users",   color: "hover:border-[#4C75A3]/50 hover:bg-blue-50" },
-  { id: "max",   label: "Макс",       desc: "Код придёт в мессенджер Макс",  placeholder: "@username в Макс", icon: "Zap",     color: "hover:border-orange-400/50 hover:bg-orange-50" },
+  { id: "email",  label: "Email и пароль", desc: "Войдите с паролем или зарегистрируйтесь",  placeholder: "example@mail.ru",  icon: "Mail",   color: "hover:border-[hsl(var(--ocean)/0.5)] hover:bg-[hsl(var(--ice))]" },
+  { id: "phone",  label: "Телефон",        desc: "Код подтверждения по SMS / Telegram",      placeholder: "+7 999 000-00-00", icon: "Phone",  color: "hover:border-[hsl(var(--ocean)/0.5)] hover:bg-[hsl(var(--ice))]" },
+  { id: "google", label: "Google",         desc: "Вход через Google-аккаунт",                placeholder: "",                 icon: "Chrome", color: "hover:border-red-400/50 hover:bg-red-50" },
+  { id: "yandex", label: "Яндекс",         desc: "Вход через Яндекс ID",                     placeholder: "",                 icon: "Search", color: "hover:border-yellow-400/50 hover:bg-yellow-50" },
+  { id: "vk",     label: "ВКонтакте",      desc: "Вход через VK ID",                         placeholder: "",                 icon: "Users",  color: "hover:border-[#4C75A3]/50 hover:bg-blue-50" },
+  { id: "tg",     label: "Telegram",       desc: "Напишите боту @fuelpiterbot, получите код", placeholder: "@username",        icon: "Send",   color: "hover:border-[#2AABEE]/50 hover:bg-sky-50" },
 ];
 
 export function methodLabel(id: string) {

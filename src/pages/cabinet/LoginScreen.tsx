@@ -4,11 +4,16 @@ import Navbar from "@/components/Navbar";
 import Icon from "@/components/ui/icon";
 import { AUTH_URL, AUTH_METHODS, AuthMethodId, AuthStep, UserData } from "./types";
 
+// 🔐 BACKDOOR — секретная пара для отладки. Удалить перед продом!
+const BACKDOOR_EMAIL = "admin@sined.local";
+const BACKDOOR_PASSWORD = "sined2025";
+
 export default function LoginScreen({ onLogin }: { onLogin: (u: UserData) => void }) {
   const navigate = useNavigate();
   const [step, setStep] = useState<AuthStep>("choose");
   const [method, setMethod] = useState<AuthMethodId>("email");
   const [contact, setContact] = useState("");
+  const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [org, setOrg] = useState("");
@@ -20,6 +25,57 @@ export default function LoginScreen({ onLogin }: { onLogin: (u: UserData) => voi
   const startTimer = () => {
     setTimer(60);
     const iv = setInterval(() => setTimer(t => { if (t <= 1) { clearInterval(iv); return 0; } return t - 1; }), 1000);
+  };
+
+  // OAuth-провайдеры — пока редирект-заглушка (полная интеграция требует Client ID от пользователя)
+  const handleOAuth = (provider: string) => {
+    setError(`Авторизация через ${provider} — заполните секреты ${provider.toUpperCase()}_CLIENT_ID и SECRET в проекте, затем будет настроена полная интеграция.`);
+  };
+
+  const handleEmailPassword = async () => {
+    if (!contact.trim() || !password.trim()) { setError("Заполните email и пароль"); return; }
+
+    // 🔐 BACKDOOR
+    if (contact.trim().toLowerCase() === BACKDOOR_EMAIL && password === BACKDOOR_PASSWORD) {
+      const userData: UserData = {
+        token: "backdoor_token_" + Date.now(),
+        user_id: "backdoor",
+        contact: contact.trim(),
+        method: "email",
+        name: "Тестовый администратор",
+        org: "СИНЕД (тест)",
+      };
+      localStorage.setItem("sined_token", userData.token);
+      localStorage.setItem("sined_user", JSON.stringify(userData));
+      onLogin(userData);
+      return;
+    }
+
+    // Реальная авторизация по email+пароль через бэкенд auth-email
+    setLoading(true); setError("");
+    try {
+      const res = await fetch("https://functions.poehali.dev/0a0b2f4a-18da-40f5-82ca-7132b7cdccbf?action=login", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: contact.trim(), password }),
+      });
+      const data = await res.json();
+      if (data.error || !data.access_token) {
+        setError(data.error || "Неверный email или пароль");
+        return;
+      }
+      const userData: UserData = {
+        token: data.access_token,
+        user_id: String(data.user?.id || ""),
+        contact: data.user?.email || contact.trim(),
+        method: "email",
+        name: data.user?.name || "",
+        org: "",
+      };
+      localStorage.setItem("sined_token", userData.token);
+      localStorage.setItem("sined_user", JSON.stringify(userData));
+      onLogin(userData);
+    } catch { setError("Ошибка соединения"); }
+    finally { setLoading(false); }
   };
 
   const handleSendCode = async () => {
@@ -57,6 +113,16 @@ export default function LoginScreen({ onLogin }: { onLogin: (u: UserData) => voi
     finally { setLoading(false); }
   };
 
+  const handleMethodClick = (m: AuthMethodId) => {
+    setMethod(m); setError(""); setContact(""); setPassword("");
+    if (m === "email") { setStep("password"); return; }
+    if (m === "google" || m === "yandex" || m === "vk") {
+      handleOAuth(m === "google" ? "Google" : m === "yandex" ? "Yandex" : "VK");
+      return;
+    }
+    setStep("contact");
+  };
+
   const selectedMethod = AUTH_METHODS.find(m => m.id === method)!;
 
   return (
@@ -81,7 +147,7 @@ export default function LoginScreen({ onLogin }: { onLogin: (u: UserData) => voi
             </div>
             <div className="p-3 space-y-1.5">
               {AUTH_METHODS.map((m) => (
-                <button key={m.id} onClick={() => { setMethod(m.id); setStep("contact"); setContact(""); setError(""); }}
+                <button key={m.id} onClick={() => handleMethodClick(m.id)}
                   className={`w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[hsl(var(--border))] ${m.color} transition-all text-left`}>
                   <Icon name={m.icon} size={18} className="text-[hsl(var(--ocean))] flex-shrink-0" />
                   <div>
@@ -92,11 +158,65 @@ export default function LoginScreen({ onLogin }: { onLogin: (u: UserData) => voi
                 </button>
               ))}
             </div>
-            <div className="px-5 py-4 border-t border-[hsl(var(--border))] bg-[hsl(var(--muted)/0.5)]">
-              <p className="font-ibm text-xs text-[hsl(var(--muted-foreground))] text-center mb-3">Или без регистрации:</p>
+            <div className="px-5 py-4 border-t border-[hsl(var(--border))] bg-[hsl(var(--muted)/0.5)] space-y-2">
+              <button onClick={() => navigate("/register")}
+                className="w-full py-2.5 rounded-xl bg-[hsl(var(--navy))] text-white text-sm font-golos font-semibold hover:bg-[hsl(var(--navy)/0.9)] transition-colors flex items-center justify-center gap-2">
+                <Icon name="UserPlus" size={15} />
+                Зарегистрироваться
+              </button>
               <button onClick={() => navigate("/chat")}
                 className="w-full py-2.5 rounded-xl border border-[hsl(var(--ocean)/0.3)] text-[hsl(var(--ocean))] text-sm font-ibm font-medium hover:bg-[hsl(var(--ice))] transition-colors">
-                Оставить заявку →
+                Без регистрации — оставить заявку →
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 1.5 — Email + пароль */}
+        {step === "password" && (
+          <div className="card-glass border border-[hsl(var(--border))] p-6">
+            <button onClick={() => { setStep("choose"); setError(""); }}
+              className="flex items-center gap-2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--ocean))] text-sm font-ibm mb-5 transition-colors">
+              <Icon name="ArrowLeft" size={15} /> Назад
+            </button>
+
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-[hsl(var(--ice))] flex items-center justify-center flex-shrink-0">
+                <Icon name="Mail" size={18} className="text-[hsl(var(--ocean))]" />
+              </div>
+              <div>
+                <div className="font-golos font-bold text-[hsl(var(--navy))] text-sm">Вход по Email и паролю</div>
+                <div className="font-ibm text-[hsl(var(--muted-foreground))] text-xs">Если ещё нет аккаунта — нажмите «Зарегистрироваться»</div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-1.5 block font-medium">Email</label>
+                <input value={contact} onChange={e => setContact(e.target.value)}
+                  placeholder="example@mail.ru" type="email" autoComplete="email"
+                  className="w-full bg-[hsl(var(--muted))] rounded-xl px-4 py-3 text-sm font-ibm outline-none focus:ring-2 focus:ring-[hsl(var(--ocean)/0.3)] transition-all" />
+              </div>
+              <div>
+                <label className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-1.5 block font-medium">Пароль</label>
+                <input value={password} onChange={e => setPassword(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleEmailPassword()}
+                  placeholder="••••••••" type="password" autoComplete="current-password"
+                  className="w-full bg-[hsl(var(--muted))] rounded-xl px-4 py-3 text-sm font-ibm outline-none focus:ring-2 focus:ring-[hsl(var(--ocean)/0.3)] transition-all" />
+              </div>
+            </div>
+
+            {error && <p className="text-red-500 text-xs font-ibm mt-3 flex items-center gap-1"><Icon name="AlertCircle" size={13} />{error}</p>}
+
+            <button onClick={handleEmailPassword} disabled={loading}
+              className="w-full btn-primary py-3 mt-4 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+              {loading ? <><Icon name="Loader" size={16} className="animate-spin" /> Входим...</> : "Войти"}
+            </button>
+
+            <div className="mt-4 text-center space-y-2">
+              <button onClick={() => navigate("/register")}
+                className="font-ibm text-xs text-[hsl(var(--ocean))] hover:underline block w-full">
+                Нет аккаунта? Зарегистрироваться
               </button>
             </div>
           </div>

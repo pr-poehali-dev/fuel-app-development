@@ -119,8 +119,18 @@ export default function OrdersTab({ user, selectedOrder, setSelectedOrder }: Ord
                         <span className="font-ibm text-xs text-[hsl(var(--muted-foreground))]">{order.volume}</span>
                       </>)}
                     </div>
-                    <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))] truncate">
+                    <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))] truncate mb-1.5">
                       {order.address || "Адрес не указан"}
+                    </div>
+                    {/* Прогресс-бар */}
+                    <div className="h-1 bg-[hsl(var(--muted))] rounded-full overflow-hidden">
+                      <div
+                        className={`h-full transition-all rounded-full ${
+                          statusKey === "done" ? "bg-emerald-500 w-full" :
+                          statusKey === "active" ? "bg-blue-500 w-2/3" :
+                          "bg-amber-500 w-1/4"
+                        }`}
+                      />
                     </div>
                   </div>
 

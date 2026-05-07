@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Chat from "./pages/Chat";
 import Cabinet from "./pages/Cabinet";
+import Register from "./pages/Register";
 import MapPage from "./pages/MapPage";
 import About from "./pages/About";
 import LogoUpload from "./pages/LogoUpload";
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/cabinet" element={<Cabinet />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/map" element={<ProtectedMap />} />
           <Route path="/about" element={<About />} />
           <Route path="/logo" element={<LogoUpload />} />
