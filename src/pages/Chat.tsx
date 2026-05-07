@@ -3,8 +3,32 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Icon from "@/components/ui/icon";
 
-const CHAT_URL   = "https://functions.poehali.dev/8e486deb-ba0d-4a3b-9f18-e922f277aedb";
-const NOTIFY_URL = "https://functions.poehali.dev/a9663a74-1164-44b6-b35f-51e91189827a";
+const CHAT_URL     = "https://functions.poehali.dev/8e486deb-ba0d-4a3b-9f18-e922f277aedb";
+const NOTIFY_URL   = "https://functions.poehali.dev/a9663a74-1164-44b6-b35f-51e91189827a";
+const SESSIONS_URL = "https://functions.poehali.dev/826f5bd1-4498-4271-9580-5a9d7c7a379d";
+
+function getOrCreateSessionId(): string {
+  let sid = sessionStorage.getItem("sined_session_id");
+  if (!sid) {
+    sid = "sess_" + Math.random().toString(36).slice(2, 11) + "_" + Date.now().toString(36);
+    sessionStorage.setItem("sined_session_id", sid);
+  }
+  return sid;
+}
+
+function saveSession(sid: string, source: string) {
+  fetch(SESSIONS_URL + "/start", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sid, page_source: source }),
+  }).catch(() => {});
+}
+
+function saveMessage(sid: string, role: string, content: string, extras?: Record<string, string>) {
+  fetch(SESSIONS_URL + "/message", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ session_id: sid, role, content, ...extras }),
+  }).catch(() => {});
+}
 
 interface Message {
   id: number;
@@ -54,8 +78,15 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [orderSent, setOrderSent] = useState(false);
+  const sessionId = useRef(getOrCreateSessionId());
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+
+  // Регистрируем сессию при открытии чата — уведомление менеджеру
+  useEffect(() => {
+    saveSession(sessionId.current, window.location.pathname);
+    saveMessage(sessionId.current, "assistant", WELCOME.content);
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -72,6 +103,9 @@ export default function Chat() {
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     setLoading(true);
+
+    // Сохраняем сообщение пользователя в БД
+    saveMessage(sessionId.current, "user", msgText);
 
     const apiMessages = updatedMessages.map((m) => ({ role: m.role, content: m.content }));
 
@@ -91,6 +125,12 @@ export default function Chat() {
 
       const aiMsg: Message = { id: Date.now() + 1, role: "assistant", content: visibleText, time: getTime() };
       setMessages((prev) => [...prev, aiMsg]);
+
+      // Сохраняем ответ бота + обновляем данные клиента если есть
+      const extras: Record<string, string> = {};
+      if (order?.name) extras.client_name = order.name;
+      if (order?.phone) extras.client_phone = order.phone;
+      saveMessage(sessionId.current, "assistant", visibleText, extras);
 
       // Отправляем уведомление менеджерам
       if (order && !orderSent) {

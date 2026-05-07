@@ -8,6 +8,7 @@ import Chat from "./pages/Chat";
 import Cabinet from "./pages/Cabinet";
 import MapPage from "./pages/MapPage";
 import LogoUpload from "./pages/LogoUpload";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/cabinet" element={<Cabinet />} />
           <Route path="/map" element={<MapPage />} />
           <Route path="/logo" element={<LogoUpload />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -76,12 +76,13 @@ def parse_prices_from_text(text: str) -> list:
 
 
 DEFAULT_PRICES = [
-    {"name": "Дизельное топливо Евро 5", "tag": "ДТ-Е5", "price": None, "unit": "руб/т"},
-    {"name": "Мазут М-100", "tag": "М-100", "price": None, "unit": "руб/т"},
-    {"name": "Судовое топливо", "tag": "СТ", "price": None, "unit": "руб/т"},
-    {"name": "Печное топливо", "tag": "ПТ", "price": None, "unit": "руб/л"},
-    {"name": "Бензин АИ-92", "tag": "АИ-92", "price": None, "unit": "руб/л"},
-    {"name": "Бензин АИ-95", "tag": "АИ-95", "price": None, "unit": "руб/л"},
+    {"name": "ДТ для котельных и котлов отопления", "tag": "ДТ-К",  "price": None, "unit": "руб/т"},
+    {"name": "Дизельное топливо Евро 5",            "tag": "ДТ-Е5", "price": None, "unit": "руб/т"},
+    {"name": "Керосин",                             "tag": "КЕР",   "price": None, "unit": "руб/л"},
+    {"name": "Бензин АИ-92",                        "tag": "АИ-92", "price": None, "unit": "руб/л"},
+    {"name": "Бензин АИ-95",                        "tag": "АИ-95", "price": None, "unit": "руб/л"},
+    {"name": "Мазут М-100",                         "tag": "М-100", "price": None, "unit": "руб/т"},
+    {"name": "Битум дорожный",                      "tag": "БД",    "price": None, "unit": "руб/т"},
 ]
 
 
