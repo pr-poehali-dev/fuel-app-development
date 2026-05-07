@@ -34,6 +34,8 @@ def send_telegram(bot_token: str, chat_id: str, text: str) -> bool:
     data = json.dumps({
         "chat_id": chat_id,
         "text": text,
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True,
     }).encode("utf-8")
     req = urllib.request.Request(
         url, data=data, headers={"Content-Type": "application/json"}
@@ -99,13 +101,17 @@ def route_start(body: dict, schema: str) -> dict:
         # Уведомление в Telegram если ещё не уведомляли
         if not notified:
             bot_token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
-            chat_id = os.environ.get("TELEGRAM_CHAT_ID", "")
+            chat_id = os.environ.get("TELEGRAM_GROUP_ID") or os.environ.get("TELEGRAM_CHAT_ID", "")
             short_id = session_id[:8] if len(session_id) >= 8 else session_id
-            page_label = page_source if page_source else "не указана"
+            page_label = page_source if page_source else "/"
+            now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
             tg_text = (
-                f"\U0001f441 Новый посетитель начал чат\n"
-                f"Страница: {page_label}\n"
-                f"ID: {short_id}..."
+                f"🟢 <b>Новое взаимодействие на сайте</b>\n"
+                f"<i>Клиент открыл чат с Денисом</i>\n\n"
+                f"📄 <b>Страница:</b> {page_label}\n"
+                f"🕒 <b>Время:</b> {now_str}\n"
+                f"🆔 <b>Сессия:</b> <code>{short_id}</code>\n\n"
+                f"💬 Ждём, пока клиент оставит заявку..."
             )
             if bot_token and chat_id:
                 sent = send_telegram(bot_token, chat_id, tg_text)
