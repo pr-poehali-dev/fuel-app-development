@@ -36,9 +36,17 @@ export default function Cabinet() {
         {/* Минималистичная шапка */}
         <div className="flex items-center justify-between mb-8 animate-fade-in">
           <div>
-            <h1 className="font-golos font-black text-[hsl(var(--navy))] text-2xl sm:text-3xl leading-tight">
-              {displayName}
-            </h1>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="font-golos font-black text-[hsl(var(--navy))] text-2xl sm:text-3xl leading-tight">
+                {displayName}
+              </h1>
+              {localStorage.getItem("sined_demo_mode") === "1" && (
+                <span className="inline-flex items-center gap-1 bg-amber-100 border border-amber-300 text-amber-800 text-[10px] font-golos font-bold px-2 py-1 rounded-full uppercase tracking-wider">
+                  <Icon name="FlaskConical" size={10} />
+                  Демо
+                </span>
+              )}
+            </div>
             <p className="font-ibm text-[hsl(var(--muted-foreground))] text-sm mt-1">
               Добро пожаловать в личный кабинет
             </p>
@@ -63,7 +71,13 @@ export default function Cabinet() {
                   )}
                 </div>
                 <button
-                  onClick={() => { localStorage.removeItem("sined_user"); localStorage.removeItem("sined_token"); setUser(null); }}
+                  onClick={() => {
+                    localStorage.removeItem("sined_user");
+                    localStorage.removeItem("sined_token");
+                    localStorage.removeItem("sined_demo_mode");
+                    localStorage.removeItem("sined_demo_orders");
+                    setUser(null);
+                  }}
                   className="w-full flex items-center gap-2.5 px-4 py-3 text-sm font-ibm text-red-600 hover:bg-red-50 transition-colors">
                   <Icon name="LogOut" size={15} />
                   Выйти из аккаунта

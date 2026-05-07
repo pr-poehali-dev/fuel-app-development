@@ -134,37 +134,49 @@ export default function MapPage() {
     return () => clearInterval(interval);
   }, []);
 
+  const isDemo = typeof window !== "undefined" && localStorage.getItem("sined_demo_mode") === "1";
+
   return (
     <div className="min-h-screen bg-[hsl(var(--background))] relative">
-      {/* Заглушка "В разработке" — поверх всей страницы */}
-      <div className="fixed inset-0 z-[100] bg-[hsl(var(--navy))/0.92] backdrop-blur-md flex items-center justify-center px-4">
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 sm:p-10 text-center shadow-2xl">
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--sky))] flex items-center justify-center mx-auto mb-5 shadow-lg">
-            <Icon name="Wrench" size={36} className="text-white" />
-          </div>
-          <div className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 mb-4">
-            <Icon name="Clock" size={12} className="text-amber-600" />
-            <span className="font-golos font-semibold text-amber-700 text-[11px] uppercase tracking-wider">В разработке</span>
-          </div>
-          <h1 className="font-golos font-black text-[hsl(var(--navy))] text-2xl mb-3">
-            Отслеживание на карте
-          </h1>
-          <p className="font-ibm text-[hsl(var(--muted-foreground))] text-sm leading-relaxed mb-6">
-            Функционал в разработке. Скоро здесь появится онлайн-карта с реальным движением бензовоза, маршрутом доставки и временем прибытия.
-          </p>
-          <div className="bg-[hsl(var(--ice))] border border-[hsl(var(--sky)/0.3)] rounded-xl p-4 mb-6 text-left">
-            <p className="font-ibm text-xs text-[hsl(var(--navy))] leading-relaxed">
-              <strong className="font-golos">Пока что</strong> — статус заявки и контакты водителя доступны в личном кабинете. Менеджер свяжется с вами за 30 минут до прибытия.
+      {/* Заглушка "В разработке" — скрывается в демо-режиме */}
+      {!isDemo && (
+        <div className="fixed inset-0 z-[100] bg-[hsl(var(--navy))/0.92] backdrop-blur-md flex items-center justify-center px-4">
+          <div className="max-w-md w-full bg-white rounded-3xl p-8 sm:p-10 text-center shadow-2xl">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--sky))] flex items-center justify-center mx-auto mb-5 shadow-lg">
+              <Icon name="Wrench" size={36} className="text-white" />
+            </div>
+            <div className="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded-full px-3 py-1 mb-4">
+              <Icon name="Clock" size={12} className="text-amber-600" />
+              <span className="font-golos font-semibold text-amber-700 text-[11px] uppercase tracking-wider">В разработке</span>
+            </div>
+            <h1 className="font-golos font-black text-[hsl(var(--navy))] text-2xl mb-3">
+              Отслеживание на карте
+            </h1>
+            <p className="font-ibm text-[hsl(var(--muted-foreground))] text-sm leading-relaxed mb-6">
+              Функционал в разработке. Скоро здесь появится онлайн-карта с реальным движением бензовоза, маршрутом доставки и временем прибытия.
             </p>
+            <div className="bg-[hsl(var(--ice))] border border-[hsl(var(--sky)/0.3)] rounded-xl p-4 mb-6 text-left">
+              <p className="font-ibm text-xs text-[hsl(var(--navy))] leading-relaxed">
+                <strong className="font-golos">Пока что</strong> — статус заявки и контакты водителя доступны в личном кабинете. Менеджер свяжется с вами за 30 минут до прибытия.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/cabinet")}
+              className="w-full btn-primary py-3 flex items-center justify-center gap-2 font-golos">
+              <Icon name="ArrowLeft" size={16} />
+              Вернуться в кабинет
+            </button>
           </div>
-          <button
-            onClick={() => navigate("/cabinet")}
-            className="w-full btn-primary py-3 flex items-center justify-center gap-2 font-golos">
-            <Icon name="ArrowLeft" size={16} />
-            Вернуться в кабинет
-          </button>
         </div>
-      </div>
+      )}
+
+      {/* Демо-плашка сверху карты */}
+      {isDemo && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-amber-500 text-white px-5 py-2 rounded-full shadow-lg flex items-center gap-2 animate-fade-in">
+          <Icon name="FlaskConical" size={14} />
+          <span className="font-golos font-semibold text-xs uppercase tracking-wider">Демо-режим — симуляция движения машины</span>
+        </div>
+      )}
 
       <Navbar />
       <div className="pt-20 max-w-7xl mx-auto px-4 pb-12">

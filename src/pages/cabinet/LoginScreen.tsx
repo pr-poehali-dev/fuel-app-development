@@ -35,18 +35,21 @@ export default function LoginScreen({ onLogin }: { onLogin: (u: UserData) => voi
   const handleEmailPassword = async () => {
     if (!contact.trim() || !password.trim()) { setError("Заполните email и пароль"); return; }
 
-    // 🔐 BACKDOOR
+    // 🔐 BACKDOOR — демо-режим. Каждый раз чистый кабинет.
     if (contact.trim().toLowerCase() === BACKDOOR_EMAIL && password === BACKDOOR_PASSWORD) {
+      // Сбрасываем все демо-данные при каждом входе
+      localStorage.removeItem("sined_demo_orders");
       const userData: UserData = {
-        token: "backdoor_token_" + Date.now(),
-        user_id: "backdoor",
+        token: "demo_token_" + Date.now(),
+        user_id: "demo_user",
         contact: contact.trim(),
         method: "email",
-        name: "Тестовый администратор",
-        org: "СИНЕД (тест)",
+        name: "Демо-клиент",
+        org: "ООО «Тест-Клиент»",
       };
       localStorage.setItem("sined_token", userData.token);
       localStorage.setItem("sined_user", JSON.stringify(userData));
+      localStorage.setItem("sined_demo_mode", "1");
       onLogin(userData);
       return;
     }
