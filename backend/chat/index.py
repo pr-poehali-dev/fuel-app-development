@@ -62,14 +62,16 @@ def handler(event: dict, context) -> dict:
     if not messages:
         return {"statusCode": 400, "headers": cors_headers, "body": json.dumps({"error": "No messages provided"})}
 
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        return {"statusCode": 500, "headers": cors_headers, "body": json.dumps({"error": "API key not configured"})}
+    # Приоритет: Polza.ai (работает без VPN), fallback — OpenRouter
+    polza_key = os.environ.get("POLZA_AI_API_KEY")
+    openai_key = os.environ.get("OPENAI_API_KEY")
 
-    client = OpenAI(
-        api_key=api_key,
-        base_url="https://openrouter.ai/api/v1",
-    )
+    if polza_key:
+        client = OpenAI(api_key=polza_key, base_url="https://api.polza.ai/api/v1")
+    elif openai_key:
+        client = OpenAI(api_key=openai_key, base_url="https://openrouter.ai/api/v1")
+    else:
+        return {"statusCode": 500, "headers": cors_headers, "body": json.dumps({"error": "API key not configured"})}
 
     chat_messages = [{"role": "system", "content": SYSTEM_PROMPT}] + messages
 
