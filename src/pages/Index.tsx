@@ -13,14 +13,14 @@ interface FuelPrice {
   name: string; tag: string; price: string | null; unit: string; updated_at: string;
 }
 
-const FUEL_COLORS: Record<string, { border: string; bg: string; dot: string }> = {
-  "ДТ-К":  { border: "border-amber-300",   bg: "from-amber-50 to-white",   dot: "bg-amber-400" },
-  "ДТ-Е5": { border: "border-amber-200",   bg: "from-amber-50 to-white",   dot: "bg-amber-300" },
-  "КЕР":   { border: "border-sky-300",     bg: "from-sky-50 to-white",     dot: "bg-sky-400" },
-  "АИ-92": { border: "border-[hsl(108_62%_40%/0.5)]", bg: "from-[hsl(108_50%_95%)] to-white", dot: "bg-[hsl(108_62%_40%)]" },
-  "АИ-95": { border: "border-[hsl(108_62%_40%/0.4)]", bg: "from-[hsl(108_50%_95%)] to-white", dot: "bg-[hsl(108_62%_40%)]" },
-  "М-100": { border: "border-slate-300",   bg: "from-slate-50 to-white",   dot: "bg-slate-400" },
-  "БД":    { border: "border-stone-300",   bg: "from-stone-50 to-white",   dot: "bg-stone-400" },
+const FUEL_COLORS: Record<string, { border: string; bg: string; dot: string; text: string }> = {
+  "ДТ-К":  { border: "border-amber-400/50",  bg: "bg-amber-50/10",  dot: "bg-amber-400",  text: "text-amber-200" },
+  "ДТ-Е5": { border: "border-amber-300/40",  bg: "bg-amber-50/8",   dot: "bg-amber-300",  text: "text-amber-200" },
+  "КЕР":   { border: "border-sky-400/50",    bg: "bg-sky-50/10",    dot: "bg-sky-400",    text: "text-sky-200" },
+  "АИ-92": { border: "border-emerald-400/40",bg: "bg-emerald-50/8", dot: "bg-emerald-400",text: "text-emerald-200" },
+  "АИ-95": { border: "border-emerald-300/40",bg: "bg-emerald-50/8", dot: "bg-emerald-300",text: "text-emerald-200" },
+  "М-100": { border: "border-slate-400/40",  bg: "bg-slate-50/8",   dot: "bg-slate-400",  text: "text-slate-300" },
+  "БД":    { border: "border-stone-400/40",  bg: "bg-stone-50/8",   dot: "bg-stone-400",  text: "text-stone-300" },
 };
 
 const DEFAULT_FUELS: FuelPrice[] = [
@@ -59,6 +59,13 @@ const WhatsAppIcon = () => (
 const VKIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
     <path d="M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.391 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.864-.525-2.05-1.727-1.033-1-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.575c0 .424-.135.678-1.253.678-1.846 0-3.896-1.118-5.335-3.202C4.624 10.857 4.03 8.57 4.03 8.096c0-.254.102-.491.593-.491h1.744c.44 0 .61.203.78.677.863 2.49 2.303 4.675 2.896 4.675.22 0 .322-.102.322-.66V9.721c-.068-1.186-.695-1.287-.695-1.71 0-.203.17-.407.44-.407h2.744c.373 0 .508.203.508.643v3.473c0 .372.169.508.271.508.22 0 .407-.136.813-.542 1.254-1.406 2.151-3.574 2.151-3.574.119-.254.322-.491.763-.491h1.744c.525 0 .644.27.525.643-.22 1.017-2.354 4.031-2.354 4.031-.186.305-.254.44 0 .78.186.254.796.779 1.203 1.253.745.847 1.32 1.558 1.473 2.05.17.49-.085.744-.576.744z"/>
+  </svg>
+);
+
+/* Иконка Макс (ICQ / Mail.ru Messenger) */
+const MaxIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.055 4.636c1.97 0 3.567 1.597 3.567 3.567s-1.597 3.566-3.567 3.566c-1.97 0-3.566-1.597-3.566-3.566 0-1.97 1.597-3.567 3.566-3.567zm5.484 9.053c-.59.59-1.55.62-2.18.082l-1.304-.893-1.304.893c-.314.268-.697.399-1.087.399-.39 0-.773-.131-1.087-.399l-1.304-.893-1.304.893c-.63.537-1.59.508-2.18-.082a1.54 1.54 0 010-2.18l1.576-1.576a5.045 5.045 0 004.398 2.607 5.045 5.045 0 004.398-2.607l1.378 1.378a1.54 1.54 0 010 2.378z"/>
   </svg>
 );
 
@@ -241,27 +248,27 @@ export default function Index() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {fuels.map((f, i) => {
-              const c = FUEL_COLORS[f.tag] || { border: "border-white/20", bg: "from-white/5 to-white/2", dot: "bg-white/40" };
+              const c = FUEL_COLORS[f.tag] || { border: "border-white/20", bg: "bg-white/5", dot: "bg-white/50", text: "text-white/70" };
               return (
                 <div key={f.name}
-                  className={`bg-gradient-to-br ${c.bg} border ${c.border} rounded-2xl p-5 hover:-translate-y-1 transition-all duration-200 animate-fade-in backdrop-blur-sm`}
+                  className={`${c.bg} border ${c.border} rounded-2xl p-5 hover:-translate-y-1 transition-all duration-200 animate-fade-in`}
                   style={{ animationDelay: `${i * 0.06}s` }}>
                   <div className="flex items-center gap-2 mb-3">
-                    <div className={`w-2 h-2 rounded-full ${c.dot}`} />
-                    <span className="font-ibm text-xs font-medium text-[hsl(var(--navy)/0.7)]">{f.tag}</span>
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${c.dot}`} />
+                    <span className={`font-ibm text-xs font-semibold ${c.text}`}>{f.tag}</span>
                     {f.price && (
-                      <span className="ml-auto font-golos font-black text-[hsl(var(--navy))] text-base">
+                      <span className="ml-auto font-golos font-black text-white text-base">
                         {parseInt(f.price).toLocaleString("ru-RU")}
-                        <span className="text-[10px] font-ibm font-normal text-[hsl(var(--muted-foreground))] ml-1">{f.unit}</span>
+                        <span className="text-[10px] font-ibm font-normal text-white/50 ml-1">{f.unit}</span>
                       </span>
                     )}
                   </div>
-                  <h3 className="font-golos font-bold text-[hsl(var(--navy))] text-sm leading-snug mb-3">{f.name}</h3>
+                  <h3 className="font-golos font-bold text-white text-sm leading-snug mb-3">{f.name}</h3>
                   {!f.price && (
-                    <div className="font-ibm text-[10px] text-[hsl(var(--muted-foreground))] italic mb-3">цена — по запросу</div>
+                    <div className="font-ibm text-[10px] text-white/40 italic mb-3">цена — по запросу</div>
                   )}
                   <button onClick={() => navigate("/chat")}
-                    className="w-full py-2 rounded-xl bg-[hsl(var(--navy)/0.08)] border border-[hsl(var(--navy)/0.12)] text-[hsl(var(--ocean))] text-xs font-ibm font-medium hover:bg-[hsl(var(--ocean))] hover:text-white hover:border-transparent transition-all">
+                    className="w-full py-2 rounded-xl bg-white/10 border border-white/15 text-white/80 text-xs font-ibm font-medium hover:bg-[hsl(var(--ocean))] hover:text-white hover:border-transparent transition-all">
                     Запросить / заказать
                   </button>
                 </div>
@@ -282,10 +289,14 @@ export default function Index() {
 
           <div className="mt-6 flex items-start gap-2 bg-amber-900/30 border border-amber-500/30 rounded-xl px-4 py-3">
             <Icon name="Info" size={14} className="text-amber-400 mt-0.5 flex-shrink-0" />
-            <p className="font-ibm text-xs text-amber-200/80">
+            <p className="font-ibm text-xs text-amber-200/80 leading-relaxed">
               <strong className="text-amber-300">Цены ориентировочные</strong> — финальная стоимость зависит от объёма, периодичности и адреса доставки.
-              Точную цену подтвердит менеджер в течение 30 минут.
-              {pricesUpdated && " Обновляются ежедневно из нашего Telegram-канала."}
+              Менеджер перезвонит для окончательного подтверждения отгрузки.{" "}
+              Обновляются ежедневно из нашего{" "}
+              <a href="https://t.me/toplivospb" target="_blank" rel="noopener noreferrer"
+                className="text-amber-300 hover:text-white underline underline-offset-2 transition-colors">
+                Telegram-канала @toplivospb
+              </a>.
             </p>
           </div>
         </div>
@@ -409,13 +420,21 @@ export default function Index() {
                   className="flex items-center gap-3 bg-white/8 hover:bg-[#2AABEE]/20 border border-white/10 hover:border-[#2AABEE]/40 rounded-xl px-4 py-2.5 text-white/70 hover:text-white text-sm font-ibm transition-all">
                   <TelegramIcon />Telegram — @toplivospb
                 </a>
-                <a href="https://wa.me/79052150560" target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-3 bg-white/8 hover:bg-[#25D366]/20 border border-white/10 hover:border-[#25D366]/40 rounded-xl px-4 py-2.5 text-white/70 hover:text-white text-sm font-ibm transition-all">
-                  <WhatsAppIcon />WhatsApp
-                </a>
+                <div className="relative group">
+                  <a href="https://wa.me/79052150560" target="_blank" rel="noopener noreferrer"
+                    className="flex items-center gap-3 bg-white/8 hover:bg-[#25D366]/20 border border-white/10 hover:border-[#25D366]/40 rounded-xl px-4 py-2.5 text-white/70 hover:text-white text-sm font-ibm transition-all w-full">
+                    <WhatsAppIcon />
+                    <span>WhatsApp</span>
+                    <span className="ml-auto text-white/25 text-[10px]">*</span>
+                  </a>
+                  {/* Всплывающая сноска */}
+                  <div className="absolute bottom-full left-0 mb-2 w-64 bg-[hsl(var(--navy))] border border-white/15 rounded-xl px-3 py-2 text-[10px] font-ibm text-white/60 leading-relaxed shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
+                    * WhatsApp принадлежит Meta — организации, признанной экстремистской и запрещённой в Российской Федерации
+                  </div>
+                </div>
                 <a href="https://max.ru/sined" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-3 bg-white/8 hover:bg-orange-500/20 border border-white/10 hover:border-orange-400/40 rounded-xl px-4 py-2.5 text-white/70 hover:text-white text-sm font-ibm transition-all">
-                  <Icon name="Zap" size={16} className="text-orange-400 flex-shrink-0" />Макс
+                  <MaxIcon />Макс
                 </a>
                 <a href="https://vk.com/dizelnoetoplivo_spb" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-3 bg-white/8 hover:bg-[#4C75A3]/20 border border-white/10 hover:border-[#4C75A3]/40 rounded-xl px-4 py-2.5 text-white/70 hover:text-white text-sm font-ibm transition-all">
