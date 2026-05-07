@@ -3,10 +3,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 
 const navItems = [
-  { label: "Главная", path: "/", icon: "Home" },
+  { label: "Главная",       path: "/",       icon: "Home" },
   { label: "Оставить заявку", path: "/chat", icon: "MessageSquare" },
-  { label: "Кабинет", path: "/cabinet", icon: "User" },
-  { label: "Карта", path: "/map", icon: "MapPin" },
+  { label: "О компании",    path: "/about",  icon: "Building2" },
+  { label: "Кабинет",       path: "/cabinet", icon: "User" },
 ];
 
 // SVG иконки соцсетей

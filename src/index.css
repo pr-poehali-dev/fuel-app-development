@@ -37,13 +37,15 @@
 
     --radius: 0.75rem;
 
-    /* СИНЕД brand — точные цвета из логотипа */
-    --navy: 218 55% 13%; /* тёмно-синий фон логотипа   */
-    --ocean: 218 72% 38%; /* насыщенный синий кольцо    */
-    --sky: 198 85% 52%; /* голубой внешний контур     */
-    --teal: 172 58% 40%; /* сине-зелёный переход       */
-    --lime: 100 65% 38%; /* ярко-зелёный листок        */
-    --ice: 198 70% 93%; /* светло-голубой фон         */
+    /* СИНЕД brand — точные цвета из логотипа (синий + зелёный + голубой) */
+    --navy: 218 55% 13%; /* тёмно-синий фон           */
+    --ocean: 218 72% 38%; /* насыщенный синий          */
+    --sky: 198 85% 52%; /* голубой                   */
+    --teal: 162 60% 36%; /* сине-зелёный переход      */
+    --lime: 108 62% 40%; /* ярко-зелёный из логотипа  */
+    --lime2: 88 70% 48%; /* жёлто-зелёный акцент      */
+    --ice: 198 70% 93%; /* светло-голубой фон        */
+    --green-bg: 108 50% 95%; /* светло-зелёный фон       */
   }
 }
 
@@ -77,7 +79,13 @@
 
   .btn-green {
     @apply bg-[hsl(var(--lime))] text-white font-golos font-semibold px-6 py-3 rounded-xl
-           hover:bg-[hsl(100_65%_30%)] transition-all duration-200 shadow-md;
+           hover:bg-[hsl(108_62%_32%)] transition-all duration-200 shadow-md hover:shadow-lg
+           hover:-translate-y-0.5 active:translate-y-0;
+  }
+
+  .tag-green {
+    @apply bg-[hsl(var(--green-bg))] border border-[hsl(var(--lime)/0.35)] text-[hsl(var(--lime))]
+           text-xs font-medium px-2.5 py-1 rounded-lg;
   }
 
   .btn-teal {

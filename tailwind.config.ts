@@ -64,6 +64,9 @@ export default {
         teal: 'hsl(var(--teal))',
         sky: 'hsl(var(--sky))',
         ice: 'hsl(var(--ice))',
+        lime: 'hsl(var(--lime))',
+        lime2: 'hsl(var(--lime2))',
+        'green-bg': 'hsl(var(--green-bg))',
       },
       borderRadius: {
         lg: 'var(--radius)',

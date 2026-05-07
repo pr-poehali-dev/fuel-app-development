@@ -74,12 +74,125 @@ const mockUser = {
   segment: "Клиент СИНЕД",
 };
 
+type AuthMethod = "email" | "phone" | null;
+
+function LoginScreen({ onLogin }: { onLogin: (name: string) => void }) {
+  const navigate = useNavigate();
+  const [method, setMethod] = useState<AuthMethod>(null);
+  const [input, setInput] = useState("");
+  const [name, setName] = useState("");
+  const [step, setStep] = useState<"choose" | "form">("choose");
+
+  const handleSubmit = () => {
+    if (name.trim() && input.trim()) {
+      localStorage.setItem("sined_user", JSON.stringify({ name: name.trim(), contact: input.trim(), method }));
+      onLogin(name.trim());
+    }
+  };
+
+  const socials = [
+    { id: "tg",    label: "Telegram",    icon: "Send",   color: "hover:border-[#2AABEE]/50 hover:bg-[#2AABEE]/8" },
+    { id: "wa",    label: "WhatsApp",    icon: "MessageCircle", color: "hover:border-[#25D366]/50 hover:bg-[#25D366]/8" },
+    { id: "vk",    label: "ВКонтакте",  icon: "Users",  color: "hover:border-[#4C75A3]/50 hover:bg-[#4C75A3]/8" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[hsl(var(--background))]">
+      <Navbar />
+      <div className="pt-24 max-w-lg mx-auto px-4 pb-12">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--lime))] flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <Icon name="User" size={28} className="text-white" />
+          </div>
+          <h1 className="font-golos font-black text-[hsl(var(--navy))] text-2xl mb-2">Личный кабинет</h1>
+          <p className="font-ibm text-[hsl(var(--muted-foreground))] text-sm">
+            Войдите, чтобы отслеживать заявки и доставку
+          </p>
+        </div>
+
+        {step === "choose" ? (
+          <div className="card-glass p-6 border border-[hsl(var(--border))]">
+            <p className="font-golos font-bold text-[hsl(var(--navy))] text-sm mb-4 text-center">Войти через</p>
+            <div className="space-y-2 mb-5">
+              <button onClick={() => { setMethod("email"); setStep("form"); }}
+                className="w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[hsl(var(--border))] hover:border-[hsl(var(--ocean)/0.4)] hover:bg-[hsl(var(--ice))] transition-all font-ibm text-sm text-[hsl(var(--navy))]">
+                <Icon name="Mail" size={18} className="text-[hsl(var(--ocean))]" />
+                Email
+              </button>
+              <button onClick={() => { setMethod("phone"); setStep("form"); }}
+                className="w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[hsl(var(--border))] hover:border-[hsl(var(--ocean)/0.4)] hover:bg-[hsl(var(--ice))] transition-all font-ibm text-sm text-[hsl(var(--navy))]">
+                <Icon name="Phone" size={18} className="text-[hsl(var(--ocean))]" />
+                Номер телефона
+              </button>
+              {socials.map((s) => (
+                <button key={s.id} onClick={() => { setMethod(s.id as AuthMethod); setStep("form"); }}
+                  className={`w-full flex items-center gap-3 py-3 px-4 rounded-xl border border-[hsl(var(--border))] ${s.color} transition-all font-ibm text-sm text-[hsl(var(--navy))]`}>
+                  <Icon name={s.icon} size={18} className="text-[hsl(var(--muted-foreground))]" />
+                  {s.label}
+                </button>
+              ))}
+            </div>
+            <div className="border-t border-[hsl(var(--border))] pt-4 text-center">
+              <p className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-3">Или без регистрации:</p>
+              <button onClick={() => navigate("/chat")}
+                className="w-full py-2.5 rounded-xl border border-[hsl(var(--ocean)/0.3)] text-[hsl(var(--ocean))] text-sm font-ibm font-medium hover:bg-[hsl(var(--ice))] transition-colors">
+                Оставить заявку →
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="card-glass p-6 border border-[hsl(var(--border))]">
+            <button onClick={() => setStep("choose")} className="flex items-center gap-2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--ocean))] text-sm font-ibm mb-5 transition-colors">
+              <Icon name="ArrowLeft" size={15} />
+              Назад
+            </button>
+            <p className="font-golos font-bold text-[hsl(var(--navy))] text-sm mb-4">
+              Войти через {method === "email" ? "Email" : method === "phone" ? "телефон" : method}
+            </p>
+            <div className="space-y-3">
+              <div>
+                <label className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-1 block">Ваше имя или организация</label>
+                <input value={name} onChange={e => setName(e.target.value)}
+                  placeholder="Иванов Иван / ООО Ромашка"
+                  className="w-full bg-[hsl(var(--muted))] rounded-xl px-4 py-3 text-sm font-ibm outline-none focus:ring-2 focus:ring-[hsl(var(--ocean)/0.3)]" />
+              </div>
+              <div>
+                <label className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-1 block">
+                  {method === "email" ? "Email" : method === "phone" ? "Номер телефона" : `${method} username или телефон`}
+                </label>
+                <input value={input} onChange={e => setInput(e.target.value)}
+                  placeholder={method === "email" ? "example@mail.ru" : method === "phone" ? "+7 999 000-00-00" : "@username"}
+                  className="w-full bg-[hsl(var(--muted))] rounded-xl px-4 py-3 text-sm font-ibm outline-none focus:ring-2 focus:ring-[hsl(var(--ocean)/0.3)]" />
+              </div>
+            </div>
+            <button onClick={handleSubmit} disabled={!name.trim() || !input.trim()}
+              className="w-full btn-primary py-3 mt-4 disabled:opacity-40 disabled:cursor-not-allowed">
+              Войти
+            </button>
+            <p className="font-ibm text-[10px] text-[hsl(var(--muted-foreground))] text-center mt-3 leading-relaxed">
+              Нажимая «Войти», вы соглашаетесь с обработкой персональных данных согласно ФЗ-152
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Cabinet() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"orders" | "profile">("orders");
   const [selectedOrder, setSelectedOrder] = useState<string | null>(null);
+  const [user, setUser] = useState<{ name: string; contact: string; method: string } | null>(() => {
+    try { return JSON.parse(localStorage.getItem("sined_user") || "null"); } catch { return null; }
+  });
 
   const selected = mockOrders.find((o) => o.id === selectedOrder);
+
+  if (!user) return <LoginScreen onLogin={(name) => {
+    const stored = JSON.parse(localStorage.getItem("sined_user") || "{}");
+    setUser(stored);
+  }} />;
 
   return (
     <div className="min-h-screen bg-[hsl(var(--background))]">
@@ -88,14 +201,21 @@ export default function Cabinet() {
 
         {/* Header */}
         <div className="mb-8 animate-fade-in">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--teal))] flex items-center justify-center shadow-md">
-              <Icon name="Building2" size={22} className="text-white" />
+          <div className="flex items-center justify-between gap-3 mb-2">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--lime))] flex items-center justify-center shadow-md">
+                <Icon name="User" size={22} className="text-white" />
+              </div>
+              <div>
+                <h1 className="font-golos font-black text-[hsl(var(--navy))] text-2xl">{user?.name || "Личный кабинет"}</h1>
+                <span className="fuel-tag text-xs">Клиент СИНЕД</span>
+              </div>
             </div>
-            <div>
-              <h1 className="font-golos font-black text-[hsl(var(--navy))] text-2xl">{mockUser.name}</h1>
-              <span className="fuel-tag text-xs">{mockUser.segment}</span>
-            </div>
+            <button onClick={() => { localStorage.removeItem("sined_user"); setUser(null); }}
+              className="flex items-center gap-2 text-xs font-ibm text-[hsl(var(--muted-foreground))] hover:text-red-500 transition-colors px-3 py-2 rounded-lg hover:bg-red-50 border border-transparent hover:border-red-200">
+              <Icon name="LogOut" size={14} />
+              Выйти
+            </button>
           </div>
         </div>
 
