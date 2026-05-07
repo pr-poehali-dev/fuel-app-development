@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS idx_users_vk_id ON users(vk_id);
