@@ -1,0 +1,7 @@
+{
+  "tests": [
+    {"name": "OPTIONS preflight", "method": "OPTIONS", "path": "/", "expectedStatus": 200},
+    {"name": "Health check", "method": "GET", "path": "/", "expectedStatus": 200, "expectedBody": {"status": "ok"}, "bodyMatcher": "partial"},
+    {"name": "Block admin without token", "method": "GET", "path": "/?action=all", "expectedStatus": 403}
+  ]
+}

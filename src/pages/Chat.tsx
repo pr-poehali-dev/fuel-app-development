@@ -6,6 +6,7 @@ import Icon from "@/components/ui/icon";
 const CHAT_URL     = "https://functions.poehali.dev/8e486deb-ba0d-4a3b-9f18-e922f277aedb";
 const NOTIFY_URL   = "https://functions.poehali.dev/a9663a74-1164-44b6-b35f-51e91189827a";
 const SESSIONS_URL = "https://functions.poehali.dev/826f5bd1-4498-4271-9580-5a9d7c7a379d";
+const ORDERS_URL   = "https://functions.poehali.dev/2d08fa8d-d361-4d58-995f-60ed63a3d4fd";
 
 function getOrCreateSessionId(): string {
   let sid = sessionStorage.getItem("sined_session_id");
@@ -132,13 +133,29 @@ export default function Chat() {
       if (order?.phone) extras.client_phone = order.phone;
       saveMessage(sessionId.current, "assistant", visibleText, extras);
 
-      // Отправляем уведомление менеджерам
+      // Отправляем уведомление менеджерам + сохраняем заявку в БД
       if (order && !orderSent) {
         setOrderSent(true);
         fetch(NOTIFY_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ order, conversation: updatedMessages.map((m) => `${m.role}: ${m.content}`).join("\n") }),
+        }).catch(() => {});
+
+        // Привязываем к авторизованному пользователю если есть
+        let userData: { user_id?: string; contact?: string } = {};
+        try { userData = JSON.parse(localStorage.getItem("sined_user") || "{}"); } catch {/*empty*/}
+
+        fetch(`${ORDERS_URL}?action=create`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...order,
+            user_id: userData.user_id,
+            contact: userData.contact || order.phone,
+            session_id: sessionId.current,
+            source: "chat",
+          }),
         }).catch(() => {});
       }
     } catch {

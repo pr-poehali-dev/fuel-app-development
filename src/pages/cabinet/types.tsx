@@ -52,6 +52,53 @@ export const mockUser = {
 };
 
 export const AUTH_URL = "https://functions.poehali.dev/7d46cc7a-17f2-4443-b62e-cf6770ab15d8";
+export const ORDERS_URL = "https://functions.poehali.dev/2d08fa8d-d361-4d58-995f-60ed63a3d4fd";
+
+export interface Order {
+  id: string;
+  order_number: string;
+  user_id?: string | null;
+  contact?: string;
+  name?: string;
+  org?: string;
+  phone?: string;
+  fuel_type?: string;
+  volume?: string;
+  address?: string;
+  desired_date?: string;
+  comment?: string;
+  status: string;
+  driver?: string;
+  vehicle?: string;
+  price?: string;
+  source?: string;
+  created_at: string;
+}
+
+export const STATUS_LABEL: Record<string, string> = {
+  pending: "Обработка",
+  active: "В пути",
+  done: "Доставлено",
+};
+
+export const STATUS_ICON: Record<string, string> = {
+  pending: "Clock",
+  active: "Truck",
+  done: "CheckCircle",
+};
+
+export const STATUS_COLOR: Record<string, { bg: string; text: string }> = {
+  pending: { bg: "bg-amber-50", text: "text-amber-600" },
+  active: { bg: "bg-blue-50", text: "text-blue-600" },
+  done: { bg: "bg-emerald-50", text: "text-emerald-600" },
+};
+
+export function formatDate(iso: string): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleDateString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric" });
+  } catch { return iso; }
+}
 
 export type AuthStep = "choose" | "contact" | "code" | "name";
 export type AuthMethodId = "email" | "tg" | "phone" | "vk" | "max";

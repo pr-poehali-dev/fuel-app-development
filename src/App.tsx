@@ -10,6 +10,7 @@ import MapPage from "./pages/MapPage";
 import About from "./pages/About";
 import LogoUpload from "./pages/LogoUpload";
 import Admin from "./pages/Admin";
+import AdminOrders from "./pages/AdminOrders";
 import NotFound from "./pages/NotFound";
 import Navbar from "./components/Navbar";
 import Icon from "./components/ui/icon";
@@ -54,6 +55,7 @@ const App = () => (
           <Route path="/about" element={<About />} />
           <Route path="/logo" element={<LogoUpload />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin-orders" element={<AdminOrders />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

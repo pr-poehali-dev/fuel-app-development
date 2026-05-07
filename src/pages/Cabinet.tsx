@@ -92,7 +92,7 @@ export default function Cabinet() {
         </div>
 
         {activeTab === "orders" && (
-          <OrdersTab selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder} />
+          <OrdersTab user={user} selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder} />
         )}
         {activeTab === "profile" && <ProfileTab />}
       </div>
