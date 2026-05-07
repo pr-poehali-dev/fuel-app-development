@@ -9,7 +9,13 @@ import urllib.parse
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+MSK = timezone(timedelta(hours=3))
+
+
+def now_msk() -> datetime:
+    return datetime.now(MSK)
 
 
 def send_telegram(bot_token: str, chat_id: str, text: str, reply_markup: dict = None) -> bool:
@@ -80,7 +86,7 @@ def handler(event: dict, context) -> dict:
     order = body.get("order", {})
     conversation = body.get("conversation", "")
 
-    now = datetime.now().strftime("%d.%m.%Y %H:%M")
+    now = now_msk().strftime("%d.%m.%Y %H:%M (МСК)")
 
     name = order.get("name", "Не указано")
     phone = order.get("phone", "Не указан")

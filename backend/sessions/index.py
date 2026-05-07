@@ -7,7 +7,13 @@ import os
 import json
 import urllib.request
 import psycopg2
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+MSK = timezone(timedelta(hours=3))
+
+
+def now_msk() -> datetime:
+    return datetime.now(MSK)
 
 
 CORS_HEADERS = {
@@ -112,7 +118,7 @@ def route_start(body: dict, schema: str) -> dict:
             chat_id = os.environ.get("TELEGRAM_GROUP_ID") or os.environ.get("TELEGRAM_CHAT_ID", "")
             short_id = session_id[:8] if len(session_id) >= 8 else session_id
             page_label = page_source if page_source else "/"
-            now_str = datetime.now().strftime("%d.%m.%Y %H:%M")
+            now_str = now_msk().strftime("%d.%m.%Y %H:%M (МСК)")
             tg_text = (
                 f"🟢 <b>Новое взаимодействие на сайте</b>\n"
                 f"<i>Клиент открыл чат с Денисом</i>\n\n"
