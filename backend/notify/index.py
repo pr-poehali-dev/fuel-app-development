@@ -12,13 +12,17 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
 
-def send_telegram(bot_token: str, chat_id: str, text: str) -> bool:
+def send_telegram(bot_token: str, chat_id: str, text: str, reply_markup: dict = None) -> bool:
     url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
-    data = json.dumps({
+    payload = {
         "chat_id": chat_id,
         "text": text,
-        "parse_mode": "HTML"
-    }).encode("utf-8")
+        "parse_mode": "HTML",
+        "disable_web_page_preview": True,
+    }
+    if reply_markup:
+        payload["reply_markup"] = reply_markup
+    data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(url, data=data, headers={"Content-Type": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
@@ -120,8 +124,22 @@ def handler(event: dict, context) -> dict:
     tg_sent = False
     email_sent = False
 
+    # Кнопки прямой связи с клиентом
+    digits = "".join(c for c in str(phone) if c.isdigit())
+    reply_markup = None
+    if digits:
+        buttons = []
+        buttons.append([
+            {"text": "📱 Позвонить", "url": f"tel:+{digits}"},
+            {"text": "💬 WhatsApp", "url": f"https://wa.me/{digits}"},
+        ])
+        buttons.append([
+            {"text": "✈️ Telegram", "url": f"https://t.me/+{digits}"},
+        ])
+        reply_markup = {"inline_keyboard": buttons}
+
     if bot_token and chat_id:
-        tg_sent = send_telegram(bot_token, chat_id, tg_text)
+        tg_sent = send_telegram(bot_token, chat_id, tg_text, reply_markup)
 
     email_sent = send_email(f"Новая заявка от {name} — СИНЕД", email_html)
 

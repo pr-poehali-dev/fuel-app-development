@@ -267,12 +267,42 @@ export default function AdminOrders() {
                       </div>
 
                       {!isEditing && (
-                        <button
-                          onClick={() => { setEditingId(order.id); setEditForm({}); }}
-                          className="flex-shrink-0 text-[hsl(var(--ocean))] hover:bg-[hsl(var(--ice))] p-2 rounded-lg transition-colors"
-                          title="Изменить">
-                          <Icon name="Pencil" size={15} />
-                        </button>
+                        <div className="flex flex-col gap-1 flex-shrink-0">
+                          {order.phone && (
+                            <a
+                              href={`https://t.me/+${order.phone.replace(/[^\d]/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-[#2AABEE] hover:bg-sky-50 p-2 rounded-lg transition-colors"
+                              title="Написать в Telegram">
+                              <Icon name="Send" size={15} />
+                            </a>
+                          )}
+                          {order.phone && (
+                            <a
+                              href={`https://wa.me/${order.phone.replace(/[^\d]/g, "")}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-emerald-600 hover:bg-emerald-50 p-2 rounded-lg transition-colors"
+                              title="Написать в WhatsApp">
+                              <Icon name="MessageCircle" size={15} />
+                            </a>
+                          )}
+                          {order.phone && (
+                            <a
+                              href={`tel:${order.phone}`}
+                              className="text-[hsl(var(--navy))] hover:bg-[hsl(var(--muted))] p-2 rounded-lg transition-colors"
+                              title="Позвонить">
+                              <Icon name="Phone" size={15} />
+                            </a>
+                          )}
+                          <button
+                            onClick={() => { setEditingId(order.id); setEditForm({}); }}
+                            className="text-[hsl(var(--ocean))] hover:bg-[hsl(var(--ice))] p-2 rounded-lg transition-colors"
+                            title="Изменить">
+                            <Icon name="Pencil" size={15} />
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
