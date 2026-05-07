@@ -60,10 +60,10 @@ export default function Index() {
                     Оформить заявку
                   </span>
                 </button>
-                <a href="tel:+78121234567"
+                <a href="tel:+79052150560"
                   className="flex items-center gap-2 px-8 py-4 rounded-xl border-2 border-[hsl(var(--ocean))] text-[hsl(var(--ocean))] font-golos font-semibold hover:bg-[hsl(var(--ice))] transition-colors text-base">
                   <Icon name="Phone" size={18} />
-                  +7 (812) 123-45-67
+                  +7 (905) 215-05-60
                 </a>
               </div>
               <div className="flex items-center gap-8 mt-10">
@@ -238,14 +238,14 @@ export default function Index() {
             <div>
               <h4 className="font-golos font-bold text-white mb-4">Контакты</h4>
               <div className="space-y-2">
-                <a href="tel:+78121234567" className="flex items-center gap-2 text-[hsl(var(--sky)/0.7)] hover:text-white text-sm font-ibm transition-colors">
-                  <Icon name="Phone" size={14} /> +7 (812) 123-45-67
+                <a href="tel:+79052150560" className="flex items-center gap-2 text-[hsl(var(--sky)/0.7)] hover:text-white text-sm font-ibm transition-colors">
+                  <Icon name="Phone" size={14} /> +7 (905) 215-05-60
                 </a>
                 <a href="mailto:sinedooo@mail.ru" className="flex items-center gap-2 text-[hsl(var(--sky)/0.7)] hover:text-white text-sm font-ibm transition-colors">
                   <Icon name="Mail" size={14} /> sinedooo@mail.ru
                 </a>
                 <div className="flex items-center gap-2 text-[hsl(var(--sky)/0.7)] text-sm font-ibm">
-                  <Icon name="MapPin" size={14} /> г. Санкт-Петербург
+                  <Icon name="MapPin" size={14} /> СПб, ул. Двинская
                 </div>
               </div>
             </div>

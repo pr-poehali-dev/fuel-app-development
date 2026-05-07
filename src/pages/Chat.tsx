@@ -240,9 +240,9 @@ export default function Chat() {
               <p className="text-[10px] font-ibm text-[hsl(var(--muted-foreground))]">
                 Нажимая «Отправить», вы соглашаетесь с обработкой ПД согласно ФЗ-152
               </p>
-              <a href="tel:+78121234567" className="text-[10px] font-ibm text-[hsl(var(--ocean))] hover:underline flex items-center gap-1">
+              <a href="tel:+79052150560" className="text-[10px] font-ibm text-[hsl(var(--ocean))] hover:underline flex items-center gap-1">
                 <Icon name="Phone" size={10} />
-                +7 (812) 123-45-67
+                +7 (905) 215-05-60
               </a>
             </div>
           </div>

@@ -295,10 +295,10 @@ export default function MapPage() {
             <div className="card-glass p-5">
               <h3 className="font-golos font-bold text-[hsl(var(--navy))] text-sm mb-3">Поддержка СИНЕД</h3>
               <div className="space-y-2">
-                <a href="tel:+78121234567"
+                <a href="tel:+79052150560"
                   className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[hsl(var(--navy))] text-white text-sm font-ibm font-medium hover:bg-[hsl(var(--ocean))] transition-colors">
                   <Icon name="Phone" size={15} />
-                  +7 (812) 123-45-67
+                  +7 (905) 215-05-60
                 </a>
                 <a href="https://t.me/toplivospb" target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[hsl(var(--ice))] border border-[hsl(var(--ocean)/0.2)] text-[hsl(var(--ocean))] text-sm font-ibm font-medium hover:bg-[hsl(var(--ocean))] hover:text-white transition-all">

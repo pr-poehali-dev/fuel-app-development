@@ -30,7 +30,7 @@ const VKIcon = () => (
 
 const socialLinks = [
   { href: "https://t.me/toplivospb", title: "Telegram", Icon: TelegramIcon },
-  { href: "https://wa.me/78121234567", title: "WhatsApp", Icon: WhatsAppIcon },
+  { href: "https://wa.me/79052150560", title: "WhatsApp", Icon: WhatsAppIcon },
   { href: "https://vk.com/dizelnoetoplivo_spb", title: "ВКонтакте", Icon: VKIcon },
 ];
 
