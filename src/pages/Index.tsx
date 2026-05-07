@@ -63,13 +63,6 @@ const VKIcon = () => (
   </svg>
 );
 
-/* Иконка Макс (ICQ / Mail.ru Messenger) */
-const MaxIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.055 4.636c1.97 0 3.567 1.597 3.567 3.567s-1.597 3.566-3.567 3.566c-1.97 0-3.566-1.597-3.566-3.566 0-1.97 1.597-3.567 3.566-3.567zm5.484 9.053c-.59.59-1.55.62-2.18.082l-1.304-.893-1.304.893c-.314.268-.697.399-1.087.399-.39 0-.773-.131-1.087-.399l-1.304-.893-1.304.893c-.63.537-1.59.508-2.18-.082a1.54 1.54 0 010-2.18l1.576-1.576a5.045 5.045 0 004.398 2.607 5.045 5.045 0 004.398-2.607l1.378 1.378a1.54 1.54 0 010 2.378z"/>
-  </svg>
-);
-
 export default function Index() {
   const navigate = useNavigate();
   const [prices, setPrices] = useState<FuelPrice[]>([]);
@@ -442,10 +435,6 @@ export default function Index() {
                     * WhatsApp принадлежит Meta — организации, признанной экстремистской и запрещённой в Российской Федерации
                   </div>
                 </div>
-                <a href="https://max.ru/sined" target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-3 bg-white/8 hover:bg-orange-500/20 border border-white/10 hover:border-orange-400/40 rounded-xl px-4 py-2.5 text-white/70 hover:text-white text-sm font-ibm transition-all">
-                  <MaxIcon />Макс
-                </a>
                 <a href="https://vk.com/dizelnoetoplivo_spb" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-3 bg-white/8 hover:bg-[#4C75A3]/20 border border-white/10 hover:border-[#4C75A3]/40 rounded-xl px-4 py-2.5 text-white/70 hover:text-white text-sm font-ibm transition-all">
                   <VKIcon />ВКонтакте

@@ -73,11 +73,6 @@ export default function ProfileTab() {
                 <WhatsAppIcon />
                 WhatsApp
               </a>
-              <a href="https://max.ru/sined" target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2 bg-[hsl(var(--ice))] hover:bg-orange-50 rounded-lg px-3 py-2.5 text-[hsl(var(--navy))] text-sm font-ibm transition-colors">
-                <Icon name="Zap" size={15} className="text-orange-500" />
-                Макс
-              </a>
               <a href="https://vk.com/dizelnoetoplivo_spb" target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2 bg-[hsl(var(--ice))] hover:bg-blue-50 rounded-lg px-3 py-2.5 text-[hsl(var(--navy))] text-sm font-ibm transition-colors">
                 <VKIcon />
