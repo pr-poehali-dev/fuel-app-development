@@ -300,7 +300,7 @@ export default function MapPage() {
                   <Icon name="Phone" size={15} />
                   +7 (812) 123-45-67
                 </a>
-                <a href="https://t.me/sined_fuel" target="_blank" rel="noopener noreferrer"
+                <a href="https://t.me/toplivospb" target="_blank" rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[hsl(var(--ice))] border border-[hsl(var(--ocean)/0.2)] text-[hsl(var(--ocean))] text-sm font-ibm font-medium hover:bg-[hsl(var(--ocean))] hover:text-white transition-all">
                   Написать в Telegram
                 </a>

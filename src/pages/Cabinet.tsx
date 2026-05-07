@@ -222,7 +222,7 @@ export default function Cabinet() {
             <div className="card-glass p-6 mt-4">
               <h3 className="font-golos font-bold text-[hsl(var(--navy))] mb-4">Связаться с менеджером</h3>
               <div className="grid grid-cols-2 gap-3">
-                {[["TG", "Telegram", "https://t.me/sined_fuel"], ["WA", "WhatsApp", "https://wa.me/78121234567"], ["ОК", "Одноклассники", "https://ok.ru/sined"], ["ВК", "ВКонтакте", "https://vk.com/sined_fuel"]].map(([s, name, href]) => (
+                {[["TG", "Telegram", "https://t.me/toplivospb"], ["WA", "WhatsApp", "https://wa.me/78121234567"], ["ВК", "ВКонтакте", "https://vk.com/dizelnoetoplivo_spb"], ["✉", "Email", "mailto:sinedooo@mail.ru"]].map(([s, name, href]) => (
                   <a key={name} href={href} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-2 bg-[hsl(var(--ice))] border border-[hsl(var(--ocean)/0.2)] hover:bg-[hsl(var(--ocean))] hover:text-white rounded-xl px-3 py-2.5 text-[hsl(var(--ocean))] text-sm font-ibm transition-all group">
                     <span className="font-golos font-bold text-xs group-hover:text-white">{s}</span>

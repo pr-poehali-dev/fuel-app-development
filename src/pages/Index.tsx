@@ -241,8 +241,8 @@ export default function Index() {
                 <a href="tel:+78121234567" className="flex items-center gap-2 text-[hsl(var(--sky)/0.7)] hover:text-white text-sm font-ibm transition-colors">
                   <Icon name="Phone" size={14} /> +7 (812) 123-45-67
                 </a>
-                <a href="mailto:info@sined.ru" className="flex items-center gap-2 text-[hsl(var(--sky)/0.7)] hover:text-white text-sm font-ibm transition-colors">
-                  <Icon name="Mail" size={14} /> info@sined.ru
+                <a href="mailto:sinedooo@mail.ru" className="flex items-center gap-2 text-[hsl(var(--sky)/0.7)] hover:text-white text-sm font-ibm transition-colors">
+                  <Icon name="Mail" size={14} /> sinedooo@mail.ru
                 </a>
                 <div className="flex items-center gap-2 text-[hsl(var(--sky)/0.7)] text-sm font-ibm">
                   <Icon name="MapPin" size={14} /> г. Санкт-Петербург
@@ -252,7 +252,7 @@ export default function Index() {
             <div>
               <h4 className="font-golos font-bold text-white mb-4">Мы в сетях</h4>
               <div className="grid grid-cols-2 gap-2">
-                {[["TG", "Telegram", "https://t.me/sined_fuel"], ["WA", "WhatsApp", "https://wa.me/78121234567"], ["ОК", "Одноклассники", "https://ok.ru/sined"], ["ВК", "ВКонтакте", "https://vk.com/sined_fuel"]].map(([s, name, href]) => (
+                {[["TG", "Telegram", "https://t.me/toplivospb"], ["WA", "WhatsApp", "https://wa.me/78121234567"], ["ВК", "ВКонтакте", "https://vk.com/dizelnoetoplivo_spb"]].map(([s, name, href]) => (
                   <a key={name} href={href} target="_blank" rel="noopener noreferrer"
                     className="flex items-center gap-2 bg-white/10 hover:bg-white/20 rounded-lg px-3 py-2 text-[hsl(var(--sky))] hover:text-white text-sm font-ibm transition-all">
                     <span className="font-golos font-bold text-xs">{s}</span>{name}
