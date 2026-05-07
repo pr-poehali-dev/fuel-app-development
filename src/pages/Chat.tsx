@@ -19,7 +19,7 @@ function getTime() {
 const WELCOME: Message = {
   id: 0,
   role: "assistant",
-  content: `Здравствуйте! Я — ИИ-помощник компании СИНЕД. 
+  content: `Здравствуйте! Меня зовут Денис, я — ИИ-помощник компании СИНЕД. 
 
 Помогу вам оставить заявку на топливо или отвечу на любые вопросы: какое топливо выбрать, как хранить, сколько нужно на сезон — спрашивайте!
 
@@ -117,14 +117,18 @@ export default function Chat() {
               <button onClick={() => navigate("/")} className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--ocean))] transition-colors mr-1">
                 <Icon name="ArrowLeft" size={18} />
               </button>
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--teal))] flex items-center justify-center shadow">
-                <Icon name="Bot" size={20} className="text-white" />
+              <div className="w-10 h-10 rounded-xl overflow-hidden shadow flex-shrink-0">
+                <img
+                  src="https://cdn.poehali.dev/projects/4cf0026b-b564-47e3-8a8c-63d826844795/bucket/d218ce6f-c6e7-44ca-9118-db1e6fa7bb5a.jpg"
+                  alt="Денис"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div>
-                <div className="font-golos font-bold text-[hsl(var(--navy))] text-base">Оставить заявку</div>
+                <div className="font-golos font-bold text-[hsl(var(--navy))] text-base">Денис — помощник СИНЕД</div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse-dot" />
-                  <span className="text-[hsl(var(--muted-foreground))] text-xs font-ibm">ИИ-помощник СИНЕД • онлайн</span>
+                  <span className="text-[hsl(var(--muted-foreground))] text-xs font-ibm">ИИ-консультант • онлайн</span>
                 </div>
               </div>
             </div>
@@ -155,8 +159,12 @@ export default function Chat() {
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} animate-fade-in`}>
                 {msg.role === "assistant" && (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--teal))] flex items-center justify-center mr-2.5 flex-shrink-0 mt-1 shadow">
-                    <Icon name="Bot" size={14} className="text-white" />
+                  <div className="w-8 h-8 rounded-full overflow-hidden mr-2.5 flex-shrink-0 mt-1 shadow border border-[hsl(var(--border))]">
+                    <img
+                      src="https://cdn.poehali.dev/projects/4cf0026b-b564-47e3-8a8c-63d826844795/bucket/d218ce6f-c6e7-44ca-9118-db1e6fa7bb5a.jpg"
+                      alt="Денис"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 )}
                 <div className={`flex flex-col gap-1 ${msg.role === "user" ? "items-end" : "items-start"} max-w-[78%]`}>
@@ -175,8 +183,12 @@ export default function Chat() {
 
             {loading && (
               <div className="flex items-start gap-2.5 animate-fade-in">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--teal))] flex items-center justify-center flex-shrink-0 shadow">
-                  <Icon name="Bot" size={14} className="text-white" />
+                <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 shadow border border-[hsl(var(--border))]">
+                  <img
+                    src="https://cdn.poehali.dev/projects/4cf0026b-b564-47e3-8a8c-63d826844795/bucket/d218ce6f-c6e7-44ca-9118-db1e6fa7bb5a.jpg"
+                    alt="Денис"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="chat-bubble-ai flex items-center gap-1.5 py-3.5 px-4">
                   <span className="typing-dot w-2 h-2 rounded-full bg-[hsl(var(--ocean))] inline-block" />

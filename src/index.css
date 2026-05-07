@@ -6,8 +6,8 @@
 
 @layer base {
   :root {
-    --background: 210 30% 98%;
-    --foreground: 210 40% 8%;
+    --background: 210 28% 97%;
+    --foreground: 218 45% 10%;
 
     --card: 0 0% 100%;
     --card-foreground: 210 40% 8%;
@@ -15,34 +15,35 @@
     --popover: 0 0% 100%;
     --popover-foreground: 210 40% 8%;
 
-    --primary: 199 85% 32%;
+    /* Цвета из логотипа СИНЕД */
+    --primary: 218 72% 38%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 160 60% 30%;
+    --secondary: 100 65% 38%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 210 20% 94%;
-    --muted-foreground: 210 20% 45%;
+    --muted: 210 20% 93%;
+    --muted-foreground: 218 18% 48%;
 
-    --accent: 195 80% 88%;
-    --accent-foreground: 199 85% 20%;
+    --accent: 198 80% 88%;
+    --accent-foreground: 218 72% 25%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 210 25% 88%;
-    --input: 210 25% 88%;
-    --ring: 199 85% 32%;
+    --border: 210 22% 87%;
+    --input: 210 22% 87%;
+    --ring: 218 72% 38%;
 
     --radius: 0.75rem;
 
-    /* СИНЕД brand */
-    --navy: 215 50% 14%;
-    --ocean: 199 85% 32%;
-    --teal: 172 60% 35%;
-    --sky: 200 80% 60%;
-    --ice: 200 60% 93%;
-    --green-fuel: 160 60% 30%;
+    /* СИНЕД brand — точные цвета из логотипа */
+    --navy: 218 55% 13%; /* тёмно-синий фон логотипа   */
+    --ocean: 218 72% 38%; /* насыщенный синий кольцо    */
+    --sky: 198 85% 52%; /* голубой внешний контур     */
+    --teal: 172 58% 40%; /* сине-зелёный переход       */
+    --lime: 100 65% 38%; /* ярко-зелёный листок        */
+    --ice: 198 70% 93%; /* светло-голубой фон         */
   }
 }
 
@@ -54,8 +55,9 @@
   body {
     @apply bg-background text-foreground font-ibm;
     background-image:
-      radial-gradient(at 20% 0%, hsl(199 85% 32% / 0.05) 0px, transparent 50%),
-      radial-gradient(at 80% 10%, hsl(172 60% 35% / 0.04) 0px, transparent 50%);
+      radial-gradient(at 15% 0%, hsl(218 72% 38% / 0.06) 0px, transparent 55%),
+      radial-gradient(at 85% 5%, hsl(100 65% 38% / 0.05) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, hsl(198 85% 52% / 0.04) 0px, transparent 50%);
   }
 
   h1,
@@ -68,14 +70,19 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-[hsl(var(--ocean))] text-white font-golos font-600 px-6 py-3 rounded-xl
-           hover:bg-[hsl(199_85%_26%)] transition-all duration-200 shadow-md hover:shadow-lg
+    @apply bg-[hsl(var(--ocean))] text-white font-golos font-semibold px-6 py-3 rounded-xl
+           hover:bg-[hsl(218_72%_30%)] transition-all duration-200 shadow-md hover:shadow-lg
            hover:-translate-y-0.5 active:translate-y-0;
   }
 
+  .btn-green {
+    @apply bg-[hsl(var(--lime))] text-white font-golos font-semibold px-6 py-3 rounded-xl
+           hover:bg-[hsl(100_65%_30%)] transition-all duration-200 shadow-md;
+  }
+
   .btn-teal {
-    @apply bg-[hsl(var(--teal))] text-white font-golos font-600 px-6 py-3 rounded-xl
-           hover:bg-[hsl(172_60%_28%)] transition-all duration-200;
+    @apply bg-[hsl(var(--teal))] text-white font-golos font-semibold px-6 py-3 rounded-xl
+           hover:bg-[hsl(172_58%_32%)] transition-all duration-200;
   }
 
   .card-glass {
@@ -98,7 +105,8 @@
   }
 
   .chat-bubble-user {
-    @apply bg-[hsl(var(--ocean))] text-white rounded-2xl rounded-tr-sm px-4 py-3 text-sm max-w-[80%] ml-auto;
+    @apply bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(218_72%_30%)]
+           text-white rounded-2xl rounded-tr-sm px-4 py-3 text-sm max-w-[80%] ml-auto shadow-md;
   }
 
   .chat-bubble-ai {

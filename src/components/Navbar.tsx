@@ -52,12 +52,12 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <button onClick={() => navigate("/")} className="flex items-center gap-3 group">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--teal))] flex items-center justify-center shadow-md overflow-hidden">
-              <img src="/logo.png" alt="СИНЕД" className="w-full h-full object-contain" onError={(e) => {
-                e.currentTarget.style.display = "none";
-                e.currentTarget.nextElementSibling?.removeAttribute("style");
-              }} />
-              <span className="text-white font-golos font-black text-base tracking-tight" style={{ display: "none" }}>С</span>
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 shadow-md bg-white">
+              <img
+                src="https://cdn.poehali.dev/projects/4cf0026b-b564-47e3-8a8c-63d826844795/bucket/d218ce6f-c6e7-44ca-9118-db1e6fa7bb5a.jpg"
+                alt="СИНЕД"
+                className="w-full h-full object-cover"
+              />
             </div>
             <div className="flex flex-col leading-none">
               <span className="font-golos font-black text-white text-lg tracking-wider">СИНЕД</span>
