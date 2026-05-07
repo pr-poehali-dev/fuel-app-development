@@ -154,7 +154,7 @@ def route_send_code(body: dict) -> dict:
             info = f"Код отправлен в Telegram @{contact.lstrip('@')}"
     elif method == "phone":
         # Телефон — пока через Telegram-бота, если пользователь привязан
-        info = "Для входа по телефону напишите боту @sinedauthbot команду /start"
+        info = "Для входа по телефону напишите боту @fuelpiterbot команду /start"
         sent = False
     else:
         info = "Метод не поддерживается"

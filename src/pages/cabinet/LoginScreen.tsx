@@ -123,7 +123,7 @@ export default function LoginScreen({ onLogin }: { onLogin: (u: UserData) => voi
             {method === "tg" && (
               <div className="bg-[hsl(var(--ice))] border border-[hsl(var(--sky)/0.3)] rounded-xl p-3 mb-4">
                 <p className="font-ibm text-xs text-[hsl(var(--navy)/0.8)] leading-relaxed">
-                  <strong>Шаг 1:</strong> Найдите бота <strong>@sinedauth_bot</strong> в Telegram и нажмите /start<br/>
+                  <strong>Шаг 1:</strong> Найдите бота <strong>@fuelpiterbot</strong> в Telegram и нажмите /start<br/>
                   <strong>Шаг 2:</strong> Введите ваш @username ниже и нажмите «Получить код»
                 </p>
               </div>
