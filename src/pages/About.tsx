@@ -169,6 +169,10 @@ export default function About() {
                   className="flex items-center gap-3 w-full py-2.5 px-4 bg-[hsl(var(--ice))] border border-[hsl(var(--ocean)/0.2)] text-[hsl(var(--navy))] rounded-xl hover:bg-[#25D366]/15 hover:border-[#25D366]/40 transition-all font-ibm text-sm">
                   <WhatsAppIcon /><span>WhatsApp</span>
                 </a>
+                <a href="https://max.ru/sined" target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-3 w-full py-2.5 px-4 bg-[hsl(var(--ice))] border border-[hsl(var(--ocean)/0.2)] text-[hsl(var(--navy))] rounded-xl hover:bg-orange-50 hover:border-orange-300/50 transition-all font-ibm text-sm">
+                  <Icon name="Zap" size={16} className="text-orange-500" /><span>Макс</span>
+                </a>
                 <a href="https://vk.com/dizelnoetoplivo_spb" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-3 w-full py-2.5 px-4 bg-[hsl(var(--ice))] border border-[hsl(var(--ocean)/0.2)] text-[hsl(var(--navy))] rounded-xl hover:bg-[#4C75A3]/15 hover:border-[#4C75A3]/40 transition-all font-ibm text-sm">
                   <VKIcon /><span>ВКонтакте</span>

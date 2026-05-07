@@ -91,9 +91,10 @@ function LoginScreen({ onLogin }: { onLogin: (name: string) => void }) {
   };
 
   const socials = [
-    { id: "tg",    label: "Telegram",    icon: "Send",   color: "hover:border-[#2AABEE]/50 hover:bg-[#2AABEE]/8" },
-    { id: "wa",    label: "WhatsApp",    icon: "MessageCircle", color: "hover:border-[#25D366]/50 hover:bg-[#25D366]/8" },
-    { id: "vk",    label: "ВКонтакте",  icon: "Users",  color: "hover:border-[#4C75A3]/50 hover:bg-[#4C75A3]/8" },
+    { id: "tg",   label: "Telegram",  icon: "Send",          color: "hover:border-[#2AABEE]/50 hover:bg-[#2AABEE]/8" },
+    { id: "wa",   label: "WhatsApp",  icon: "MessageCircle", color: "hover:border-[#25D366]/50 hover:bg-[#25D366]/8" },
+    { id: "max",  label: "Макс",      icon: "Zap",           color: "hover:border-orange-400/50 hover:bg-orange-50" },
+    { id: "vk",   label: "ВКонтакте", icon: "Users",         color: "hover:border-[#4C75A3]/50 hover:bg-[#4C75A3]/8" },
   ];
 
   return (
@@ -147,7 +148,7 @@ function LoginScreen({ onLogin }: { onLogin: (name: string) => void }) {
               Назад
             </button>
             <p className="font-golos font-bold text-[hsl(var(--navy))] text-sm mb-4">
-              Войти через {method === "email" ? "Email" : method === "phone" ? "телефон" : method}
+              Войти через {method === "email" ? "Email" : method === "phone" ? "телефон" : method === "tg" ? "Telegram" : method === "wa" ? "WhatsApp" : method === "max" ? "Макс" : method === "vk" ? "ВКонтакте" : method}
             </p>
             <div className="space-y-3">
               <div>
@@ -200,21 +201,32 @@ export default function Cabinet() {
       <div className="pt-20 max-w-7xl mx-auto px-4 pb-12">
 
         {/* Header */}
-        <div className="mb-8 animate-fade-in">
-          <div className="flex items-center justify-between gap-3 mb-2">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--lime))] flex items-center justify-center shadow-md">
+        <div className="mb-6 animate-fade-in">
+          <div className="card-glass border border-[hsl(var(--border))] p-5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--lime))] flex items-center justify-center shadow-md flex-shrink-0">
                 <Icon name="User" size={22} className="text-white" />
               </div>
               <div>
-                <h1 className="font-golos font-black text-[hsl(var(--navy))] text-2xl">{user?.name || "Личный кабинет"}</h1>
-                <span className="fuel-tag text-xs">Клиент СИНЕД</span>
+                <h1 className="font-golos font-black text-[hsl(var(--navy))] text-xl sm:text-2xl leading-tight">{user?.name || "Личный кабинет"}</h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="inline-flex items-center gap-1 bg-[hsl(var(--green-bg))] text-[hsl(var(--lime))] text-[10px] font-golos font-semibold px-2 py-0.5 rounded-full border border-[hsl(var(--lime)/0.3)]">
+                    <Icon name="CheckCircle" size={10} />
+                    Авторизован
+                  </span>
+                  {user?.method && (
+                    <span className="text-[10px] font-ibm text-[hsl(var(--muted-foreground))]">
+                      через {user.method === "tg" ? "Telegram" : user.method === "wa" ? "WhatsApp" : user.method === "max" ? "Макс" : user.method === "vk" ? "ВКонтакте" : user.method === "phone" ? "телефон" : "email"}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
-            <button onClick={() => { localStorage.removeItem("sined_user"); setUser(null); }}
-              className="flex items-center gap-2 text-xs font-ibm text-[hsl(var(--muted-foreground))] hover:text-red-500 transition-colors px-3 py-2 rounded-lg hover:bg-red-50 border border-transparent hover:border-red-200">
-              <Icon name="LogOut" size={14} />
-              Выйти
+            <button
+              onClick={() => { localStorage.removeItem("sined_user"); setUser(null); }}
+              className="flex items-center gap-2 font-ibm font-medium text-sm text-white bg-red-500 hover:bg-red-600 transition-colors px-4 py-2.5 rounded-xl shadow-sm flex-shrink-0">
+              <Icon name="LogOut" size={15} />
+              <span className="hidden sm:inline">Выйти</span>
             </button>
           </div>
         </div>
@@ -370,15 +382,20 @@ export default function Cabinet() {
                   <WhatsAppIcon />
                   WhatsApp
                 </a>
+                <a href="https://max.ru/sined" target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 bg-[hsl(var(--ice))] border border-[hsl(var(--ocean)/0.2)] hover:bg-orange-50 hover:border-orange-300 rounded-xl px-3 py-2.5 text-[hsl(var(--navy))] text-sm font-ibm transition-all">
+                  <Icon name="Zap" size={16} className="flex-shrink-0 text-orange-500" />
+                  Макс
+                </a>
                 <a href="https://vk.com/dizelnoetoplivo_spb" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-2 bg-[hsl(var(--ice))] border border-[hsl(var(--ocean)/0.2)] hover:bg-blue-50 hover:border-blue-300 rounded-xl px-3 py-2.5 text-[hsl(var(--navy))] text-sm font-ibm transition-all">
                   <VKIcon />
                   ВКонтакте
                 </a>
                 <a href="mailto:sinedooo@mail.ru"
-                  className="flex items-center gap-2 bg-[hsl(var(--ice))] border border-[hsl(var(--ocean)/0.2)] hover:bg-orange-50 hover:border-orange-300 rounded-xl px-3 py-2.5 text-[hsl(var(--navy))] text-sm font-ibm transition-all">
-                  <Icon name="Mail" size={16} className="flex-shrink-0 text-orange-500" />
-                  Email
+                  className="flex items-center gap-2 bg-[hsl(var(--ice))] border border-[hsl(var(--ocean)/0.2)] hover:bg-slate-50 hover:border-slate-300 rounded-xl px-3 py-2.5 text-[hsl(var(--navy))] text-sm font-ibm transition-all col-span-2 justify-center">
+                  <Icon name="Mail" size={16} className="flex-shrink-0 text-[hsl(var(--ocean))]" />
+                  sinedooo@mail.ru
                 </a>
               </div>
               <a href="tel:+79052150560"

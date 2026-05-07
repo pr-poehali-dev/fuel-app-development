@@ -28,10 +28,18 @@ const VKIcon = () => (
   </svg>
 );
 
+/* Иконка Макс (OK.ru / ICQ Max) — официальный цвет #F07E16 */
+const MaxIcon = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.055 4.636c1.97 0 3.567 1.597 3.567 3.567s-1.597 3.566-3.567 3.566c-1.97 0-3.566-1.597-3.566-3.566 0-1.97 1.597-3.567 3.566-3.567zm5.484 9.053c-.59.59-1.55.62-2.18.082l-3.304-2.26-3.304 2.26c-.63.537-1.59.508-2.18-.082a1.54 1.54 0 010-2.18l2.576-2.576a5.045 5.045 0 004.908 0l2.484 2.576a1.54 1.54 0 010 2.18zm-5.484 2.04a5.05 5.05 0 003.566-1.481l.002.002 1.54 1.54c.59.59.59 1.547 0 2.137a1.512 1.512 0 01-2.137 0l-2.97-2.197z"/>
+  </svg>
+);
+
 const socialLinks = [
-  { href: "https://t.me/toplivospb", title: "Telegram", Icon: TelegramIcon },
-  { href: "https://wa.me/79052150560", title: "WhatsApp", Icon: WhatsAppIcon },
-  { href: "https://vk.com/dizelnoetoplivo_spb", title: "ВКонтакте", Icon: VKIcon },
+  { href: "https://t.me/toplivospb",             title: "Telegram",  Icon: TelegramIcon },
+  { href: "https://wa.me/79052150560",            title: "WhatsApp",  Icon: WhatsAppIcon },
+  { href: "https://max.ru/sined",                 title: "Макс",      Icon: MaxIcon },
+  { href: "https://vk.com/dizelnoetoplivo_spb",   title: "ВКонтакте", Icon: VKIcon },
 ];
 
 export default function Navbar() {

@@ -34,10 +34,10 @@ const DEFAULT_FUELS: FuelPrice[] = [
 ];
 
 const clients = [
-  { icon: "Flame",  label: "Котельные",                 desc: "Промышленные и частные котельные, котлы отопления" },
-  { icon: "Truck",  label: "Транспортные компании",      desc: "Оптовые поставки дизеля, заправка автопарков" },
-  { icon: "Ship",   label: "Водный транспорт",           desc: "Речные и морские суда, яхты Северо-западного региона" },
-  { icon: "Train",  label: "Железнодорожный транспорт", desc: "Локомотивы, путейская и строительная техника" },
+  { icon: "Flame",  label: "Котельные",                 desc: "Промышленные и частные котельные, котлы отопления — поставляем дизельное топливо и мазут" },
+  { icon: "Truck",  label: "Транспортные компании",      desc: "Автопарки и перевозчики — дизельное топливо Евро 5, бензин АИ-92/95 оптом" },
+  { icon: "Ship",   label: "Водный транспорт",           desc: "Речные и морские суда, яхты — судовое и дизельное топливо по Северо-западному региону" },
+  { icon: "Train",  label: "Железнодорожный транспорт", desc: "Локомотивы, дрезины, путейская техника — дизельное топливо и керосин" },
 ];
 
 const steps = [
@@ -412,6 +412,10 @@ export default function Index() {
                 <a href="https://wa.me/79052150560" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-3 bg-white/8 hover:bg-[#25D366]/20 border border-white/10 hover:border-[#25D366]/40 rounded-xl px-4 py-2.5 text-white/70 hover:text-white text-sm font-ibm transition-all">
                   <WhatsAppIcon />WhatsApp
+                </a>
+                <a href="https://max.ru/sined" target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-3 bg-white/8 hover:bg-orange-500/20 border border-white/10 hover:border-orange-400/40 rounded-xl px-4 py-2.5 text-white/70 hover:text-white text-sm font-ibm transition-all">
+                  <Icon name="Zap" size={16} className="text-orange-400 flex-shrink-0" />Макс
                 </a>
                 <a href="https://vk.com/dizelnoetoplivo_spb" target="_blank" rel="noopener noreferrer"
                   className="flex items-center gap-3 bg-white/8 hover:bg-[#4C75A3]/20 border border-white/10 hover:border-[#4C75A3]/40 rounded-xl px-4 py-2.5 text-white/70 hover:text-white text-sm font-ibm transition-all">
