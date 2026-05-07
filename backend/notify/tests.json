@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Send notification",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "order": {
+          "name": "ООО Тест",
+          "phone": "+7 999 000 00 00",
+          "fuelType": "Дизельное топливо Евро 5",
+          "volume": "1000 л",
+          "address": "СПб, ул. Тестовая, 1",
+          "date": "10.06.2024"
+        }
+      },
+      "expectedStatus": 200,
+      "expectedBody": {"success": true},
+      "bodyMatcher": "partial"
+    }
+  ]
+}

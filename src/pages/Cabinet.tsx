@@ -67,11 +67,11 @@ const statusConfig = {
 };
 
 const mockUser = {
-  name: "ООО Котельная Северная",
+  name: "Ваша организация",
   phone: "+7 (905) 215-05-60",
   email: "sinedooo@mail.ru",
-  address: "СПб, ул. Двинская",
-  segment: "Котельные",
+  address: "198035, СПб, ул. Двинская, д. 10",
+  segment: "Клиент СИНЕД",
 };
 
 export default function Cabinet() {

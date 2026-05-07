@@ -105,10 +105,15 @@ export default function Navbar() {
                 </button>
               );
             })}
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2 pt-2 pb-1">
+              <a href="tel:+79052150560"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg bg-[hsl(var(--ocean))] text-white text-sm font-ibm font-medium">
+                <Icon name="Phone" size={15} />
+                +7 (905) 215-05-60
+              </a>
               {socialLinks.map(({ href, title, Icon: SocialIcon }) => (
                 <a key={title} href={href} target="_blank" rel="noopener noreferrer" title={title}
-                  className="flex-1 py-2.5 rounded-lg bg-white/10 text-[hsl(var(--sky))] hover:bg-white/20 flex items-center justify-center">
+                  className="w-11 py-2.5 rounded-lg bg-white/10 text-[hsl(var(--sky))] hover:bg-white/20 flex items-center justify-center">
                   <SocialIcon />
                 </a>
               ))}
