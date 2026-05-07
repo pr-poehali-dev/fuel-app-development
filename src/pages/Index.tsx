@@ -123,7 +123,7 @@ export default function Index() {
                 Оставить заявку
               </button>
               <a href="tel:+79052150560"
-                className="flex items-center gap-2 px-7 py-3.5 rounded-xl border-2 border-white/40 text-white font-golos font-semibold hover:bg-white/10 transition-colors text-base">
+                className="flex items-center gap-2 px-7 py-3.5 rounded-xl border-2 border-white/40 font-golos font-semibold hover:bg-white/10 transition-colors text-base text-green-50">
                 <Icon name="Phone" size={18} />
                 +7 (905) 215-05-60
               </a>
