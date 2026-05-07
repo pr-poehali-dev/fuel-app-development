@@ -5,6 +5,8 @@ import { ORDERS_URL, Order, STATUS_LABEL, STATUS_ICON, STATUS_COLOR, formatDate,
 import { isDemoMode, getDemoOrders, createDemoOrder, updateDemoOrder, nextStatus, resetDemo } from "./demoOrders";
 import TruckGame from "./games/TruckGame";
 import DiscountWheel from "./games/DiscountWheel";
+import ReferralProgram from "./games/ReferralProgram";
+import { getBalance, verifyLedger } from "./tokens";
 
 interface OrdersTabProps {
   user: UserData;
@@ -19,6 +21,17 @@ export default function OrdersTab({ user, selectedOrder, setSelectedOrder }: Ord
   const demo = isDemoMode();
   const [showTruck, setShowTruck] = useState(false);
   const [showWheel, setShowWheel] = useState(false);
+  const [showReferral, setShowReferral] = useState(false);
+  const [tokenBalance, setTokenBalance] = useState(getBalance());
+  const ledgerOk = verifyLedger().ok;
+
+  const refreshTokens = () => setTokenBalance(getBalance());
+
+  useEffect(() => {
+    const handler = () => setTokenBalance(getBalance());
+    window.addEventListener("sined-tokens-update", handler);
+    return () => window.removeEventListener("sined-tokens-update", handler);
+  }, []);
 
   const reload = () => {
     if (demo) {
@@ -103,6 +116,24 @@ export default function OrdersTab({ user, selectedOrder, setSelectedOrder }: Ord
               <Icon name="Gift" size={13} />
               Рулетка скидок
             </button>
+            <button onClick={() => setShowReferral(true)}
+              className="flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:opacity-90 text-white text-xs font-golos font-semibold px-3 py-2 rounded-lg transition-all">
+              <Icon name="UsersRound" size={13} />
+              Партнёрка
+            </button>
+            {/* Баланс токенов */}
+            <div className="flex items-center gap-1.5 bg-white border border-amber-300 px-3 py-2 rounded-lg">
+              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-amber-300 to-amber-600 flex items-center justify-center">
+                <span className="text-white font-golos font-black text-[10px]">С</span>
+              </div>
+              <span className="font-golos font-bold text-xs text-amber-800">{tokenBalance}</span>
+              <span className="font-ibm text-[10px] text-amber-600">СИНЕТ</span>
+              {!ledgerOk && (
+                <span title="Обнаружено нарушение целостности данных" className="ml-1">
+                  <Icon name="AlertTriangle" size={11} className="text-red-500" />
+                </span>
+              )}
+            </div>
             {orders.length > 0 && (
               <button onClick={handleResetDemo}
                 className="flex items-center gap-1.5 bg-white hover:bg-red-50 border border-red-300 text-red-700 text-xs font-golos font-semibold px-3 py-2 rounded-lg transition-colors ml-auto">
@@ -281,8 +312,11 @@ export default function OrdersTab({ user, selectedOrder, setSelectedOrder }: Ord
         </div>
       )}
 
-      <TruckGame open={showTruck} onClose={() => setShowTruck(false)} />
-      <DiscountWheel open={showWheel} onClose={() => setShowWheel(false)} />
+      <TruckGame open={showTruck} onClose={() => setShowTruck(false)} onTokens={refreshTokens} />
+      <DiscountWheel open={showWheel} onClose={() => setShowWheel(false)} onTokens={refreshTokens} />
+      <ReferralProgram open={showReferral} onClose={() => setShowReferral(false)}
+                       userKey={user.contact || user.name || "user"}
+                       onTokens={refreshTokens} />
     </div>
   );
 }

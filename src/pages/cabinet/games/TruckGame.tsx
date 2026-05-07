@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import Icon from "@/components/ui/icon";
+import { addTokens } from "../tokens";
 
-interface Props { open: boolean; onClose: () => void }
+interface Props { open: boolean; onClose: () => void; onTokens?: () => void }
 
 interface Obstacle { x: number; w: number; h: number; type: "barrel" | "cone" }
+interface Coin { x: number; y: number; collected: boolean }
 
 const W = 720;
 const H = 240;
@@ -11,35 +13,43 @@ const GROUND = 200;
 const GRAVITY = 0.7;
 const JUMP = 13;
 
-export default function TruckGame({ open, onClose }: Props) {
+export default function TruckGame({ open, onClose, onTokens }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(() => Number(localStorage.getItem("sined_truck_best") || 0));
   const [running, setRunning] = useState(false);
   const [over, setOver] = useState(false);
+  const [tokensEarned, setTokensEarned] = useState(0);
 
   const stateRef = useRef({
     y: GROUND,
     vy: 0,
     speed: 6,
     obstacles: [] as Obstacle[],
+    coins: [] as Coin[],
     spawnIn: 80,
+    coinSpawnIn: 120,
     score: 0,
+    coinsCollected: 0,
+    frame: 0,
     cloudX: 100,
     cloudX2: 400,
     rafId: 0,
     running: false,
     over: false,
+    tokenAwarded: false,
   });
 
   const reset = () => {
     stateRef.current = {
-      y: GROUND, vy: 0, speed: 6, obstacles: [], spawnIn: 80,
-      score: 0, cloudX: 100, cloudX2: 400, rafId: 0, running: true, over: false,
+      y: GROUND, vy: 0, speed: 6, obstacles: [], coins: [], spawnIn: 80, coinSpawnIn: 120,
+      score: 0, coinsCollected: 0, frame: 0, cloudX: 100, cloudX2: 400, rafId: 0,
+      running: true, over: false, tokenAwarded: false,
     };
     setScore(0);
     setOver(false);
     setRunning(true);
+    setTokensEarned(0);
   };
 
   const jump = () => {
@@ -51,58 +61,171 @@ export default function TruckGame({ open, onClose }: Props) {
     }
   };
 
-  const drawTruck = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
+  const drawTruck = (ctx: CanvasRenderingContext2D, x: number, y: number, frame: number) => {
     // Тень
-    ctx.fillStyle = "rgba(0,0,0,0.15)";
+    ctx.fillStyle = "rgba(0,0,0,0.18)";
     ctx.beginPath();
-    ctx.ellipse(x + 35, GROUND + 18, 32, 4, 0, 0, Math.PI * 2);
+    ctx.ellipse(x + 40, GROUND + 18, 38, 5, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // Цистерна
-    ctx.fillStyle = "#1e40af";
-    ctx.fillRect(x + 18, y - 28, 48, 24);
-    ctx.fillStyle = "#3b82f6";
-    ctx.fillRect(x + 18, y - 28, 48, 6);
+    // Шасси
+    ctx.fillStyle = "#374151";
+    ctx.fillRect(x + 2, y - 8, 78, 4);
 
-    // Кабина
-    ctx.fillStyle = "#0f172a";
-    ctx.fillRect(x, y - 32, 18, 28);
-    ctx.fillStyle = "#7dd3fc";
-    ctx.fillRect(x + 3, y - 28, 12, 10);
+    // Цистерна (СЛЕВА — корпус, скруглённая)
+    const tankGrad = ctx.createLinearGradient(0, y - 32, 0, y - 8);
+    tankGrad.addColorStop(0, "#60a5fa");
+    tankGrad.addColorStop(0.5, "#1e40af");
+    tankGrad.addColorStop(1, "#1e3a8a");
+    ctx.fillStyle = tankGrad;
+    const tx = x + 4, ty = y - 32, tw = 50, th = 24;
+    ctx.beginPath();
+    ctx.moveTo(tx + 4, ty);
+    ctx.lineTo(tx + tw - 2, ty);
+    ctx.quadraticCurveTo(tx + tw + 4, ty + th / 2, tx + tw - 2, ty + th);
+    ctx.lineTo(tx + 4, ty + th);
+    ctx.quadraticCurveTo(tx - 4, ty + th / 2, tx + 4, ty);
+    ctx.closePath();
+    ctx.fill();
 
-    // Рамка цистерны
-    ctx.strokeStyle = "#1e3a8a";
+    // Жёлтая полоса
+    ctx.fillStyle = "#fbbf24";
+    ctx.fillRect(tx + 2, ty + 11, tw - 4, 3);
+
+    // Логотип
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 9px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("СИНЕД", tx + tw / 2, ty + 8);
+    ctx.textAlign = "left";
+
+    // Заклёпки на торцах
+    ctx.fillStyle = "#1e3a8a";
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.arc(tx + 1, ty + 4 + i * 4, 0.8, 0, Math.PI * 2);
+      ctx.arc(tx + tw - 1, ty + 4 + i * 4, 0.8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Кабина (СПРАВА)
+    const cabX = x + 56, cabY = y - 36;
+    ctx.fillStyle = "#dc2626";
+    ctx.beginPath();
+    ctx.moveTo(cabX, cabY + 12);
+    ctx.lineTo(cabX + 4, cabY);
+    ctx.lineTo(cabX + 22, cabY);
+    ctx.lineTo(cabX + 22, cabY + 28);
+    ctx.lineTo(cabX, cabY + 28);
+    ctx.closePath();
+    ctx.fill();
+
+    // Лобовое стекло
+    ctx.fillStyle = "#bae6fd";
+    ctx.beginPath();
+    ctx.moveTo(cabX + 5, cabY + 3);
+    ctx.lineTo(cabX + 19, cabY + 3);
+    ctx.lineTo(cabX + 19, cabY + 13);
+    ctx.lineTo(cabX + 2, cabY + 13);
+    ctx.closePath();
+    ctx.fill();
+    // Блик
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.beginPath();
+    ctx.moveTo(cabX + 5, cabY + 3);
+    ctx.lineTo(cabX + 11, cabY + 3);
+    ctx.lineTo(cabX + 7, cabY + 13);
+    ctx.lineTo(cabX + 2, cabY + 13);
+    ctx.closePath();
+    ctx.fill();
+
+    // Дверная линия
+    ctx.strokeStyle = "#991b1b";
     ctx.lineWidth = 1;
-    ctx.strokeRect(x + 18, y - 28, 48, 24);
+    ctx.beginPath();
+    ctx.moveTo(cabX + 11, cabY + 14);
+    ctx.lineTo(cabX + 11, cabY + 27);
+    ctx.stroke();
 
-    // Колёса
-    ctx.fillStyle = "#111827";
+    // Ручка двери
+    ctx.fillStyle = "#fbbf24";
+    ctx.fillRect(cabX + 13, cabY + 18, 3, 1.5);
+
+    // Фара спереди
+    ctx.fillStyle = "#fde047";
     ctx.beginPath();
-    ctx.arc(x + 8, y - 2, 6, 0, Math.PI * 2);
-    ctx.arc(x + 32, y - 2, 6, 0, Math.PI * 2);
-    ctx.arc(x + 56, y - 2, 6, 0, Math.PI * 2);
+    ctx.arc(cabX + 21, cabY + 22, 2.5, 0, Math.PI * 2);
     ctx.fill();
+    ctx.strokeStyle = "#ca8a04";
+    ctx.lineWidth = 0.8;
+    ctx.stroke();
+
+    // Бампер
+    ctx.fillStyle = "#1f2937";
+    ctx.fillRect(cabX + 20, cabY + 25, 3, 4);
+
+    // Зеркало
+    ctx.fillStyle = "#1f2937";
+    ctx.fillRect(cabX + 22, cabY + 4, 2, 4);
+
+    // Выхлопная труба
     ctx.fillStyle = "#6b7280";
-    ctx.beginPath();
-    ctx.arc(x + 8, y - 2, 2.5, 0, Math.PI * 2);
-    ctx.arc(x + 32, y - 2, 2.5, 0, Math.PI * 2);
-    ctx.arc(x + 56, y - 2, 2.5, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillRect(cabX + 1, cabY - 6, 3, 8);
+    if (frame % 6 < 3) {
+      ctx.fillStyle = "rgba(156,163,175,0.55)";
+      ctx.beginPath();
+      ctx.arc(cabX + 2, cabY - 10, 3, 0, Math.PI * 2);
+      ctx.arc(cabX + 5, cabY - 14, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Колёса с вращением
+    const wheelRot = frame * 0.4;
+    const wheels = [x + 12, x + 38, x + 66];
+    wheels.forEach(wx => {
+      ctx.fillStyle = "#111827";
+      ctx.beginPath();
+      ctx.arc(wx, y - 2, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#9ca3af";
+      ctx.beginPath();
+      ctx.arc(wx, y - 2, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#374151";
+      ctx.lineWidth = 1.2;
+      for (let i = 0; i < 3; i++) {
+        const a = wheelRot + (i * Math.PI) / 3;
+        ctx.beginPath();
+        ctx.moveTo(wx, y - 2);
+        ctx.lineTo(wx + Math.cos(a) * 3, y - 2 + Math.sin(a) * 3);
+        ctx.stroke();
+      }
+    });
   };
 
   const drawObstacle = (ctx: CanvasRenderingContext2D, o: Obstacle) => {
     if (o.type === "barrel") {
-      ctx.fillStyle = "#dc2626";
+      // Бочка с топливом
+      const grad = ctx.createLinearGradient(o.x, 0, o.x + o.w, 0);
+      grad.addColorStop(0, "#991b1b");
+      grad.addColorStop(0.5, "#dc2626");
+      grad.addColorStop(1, "#991b1b");
+      ctx.fillStyle = grad;
       ctx.fillRect(o.x, GROUND - o.h, o.w, o.h);
-      ctx.fillStyle = "#991b1b";
-      ctx.fillRect(o.x, GROUND - o.h + 6, o.w, 3);
-      ctx.fillRect(o.x, GROUND - 8, o.w, 3);
+      ctx.fillStyle = "#7f1d1d";
+      ctx.fillRect(o.x, GROUND - o.h, o.w, 2);
+      ctx.fillRect(o.x, GROUND - o.h + Math.floor(o.h / 2), o.w, 2);
+      ctx.fillRect(o.x, GROUND - 4, o.w, 2);
       ctx.fillStyle = "#fbbf24";
       ctx.font = "bold 10px monospace";
-      ctx.fillText("⛽", o.x + 2, GROUND - o.h / 2 + 3);
+      ctx.fillText("⚠", o.x + 5, GROUND - o.h / 2 + 3);
     } else {
-      // конус
-      ctx.fillStyle = "#f97316";
+      // Конус
+      const grad = ctx.createLinearGradient(o.x, 0, o.x + o.w, 0);
+      grad.addColorStop(0, "#ea580c");
+      grad.addColorStop(0.5, "#f97316");
+      grad.addColorStop(1, "#ea580c");
+      ctx.fillStyle = grad;
       ctx.beginPath();
       ctx.moveTo(o.x + o.w / 2, GROUND - o.h);
       ctx.lineTo(o.x, GROUND);
@@ -110,8 +233,36 @@ export default function TruckGame({ open, onClose }: Props) {
       ctx.closePath();
       ctx.fill();
       ctx.fillStyle = "#ffffff";
-      ctx.fillRect(o.x + 2, GROUND - o.h * 0.6, o.w - 4, 3);
+      ctx.fillRect(o.x + 3, GROUND - o.h * 0.6, o.w - 6, 3);
+      ctx.fillRect(o.x + 1, GROUND - 6, o.w - 2, 3);
     }
+  };
+
+  const drawCoin = (ctx: CanvasRenderingContext2D, c: Coin, frame: number) => {
+    if (c.collected) return;
+    const pulse = Math.sin(frame * 0.15) * 0.2 + 1;
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    ctx.scale(pulse, 1);
+    const grad = ctx.createRadialGradient(0, 0, 2, 0, 0, 10);
+    grad.addColorStop(0, "#fef3c7");
+    grad.addColorStop(0.5, "#fbbf24");
+    grad.addColorStop(1, "#d97706");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(0, 0, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#92400e";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = "#92400e";
+    ctx.font = "bold 11px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("С", 0, 1);
+    ctx.restore();
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
   };
 
   const drawCloud = (ctx: CanvasRenderingContext2D, x: number, y: number) => {
@@ -130,10 +281,10 @@ export default function TruckGame({ open, onClose }: Props) {
     if (!ctx) return;
     const s = stateRef.current;
 
-    // Очистка
+    s.frame++;
     ctx.clearRect(0, 0, W, H);
 
-    // Небо градиент
+    // Небо
     const grad = ctx.createLinearGradient(0, 0, 0, H);
     grad.addColorStop(0, "#dbeafe");
     grad.addColorStop(1, "#f0f9ff");
@@ -158,12 +309,12 @@ export default function TruckGame({ open, onClose }: Props) {
     }
 
     if (s.running && !s.over) {
-      // Физика прыжка
+      // Физика
       s.vy += GRAVITY;
       s.y += s.vy;
       if (s.y > GROUND) { s.y = GROUND; s.vy = 0; }
 
-      // Спавн препятствий
+      // Препятствия
       s.spawnIn--;
       if (s.spawnIn <= 0) {
         const isBarrel = Math.random() < 0.6;
@@ -176,25 +327,51 @@ export default function TruckGame({ open, onClose }: Props) {
         s.spawnIn = 50 + Math.floor(Math.random() * 60) - Math.min(30, Math.floor(s.score / 100));
       }
 
-      // Двигаем препятствия
+      // Монетки СИНЕТ
+      s.coinSpawnIn--;
+      if (s.coinSpawnIn <= 0) {
+        const high = Math.random() < 0.4;
+        s.coins.push({
+          x: W,
+          y: high ? GROUND - 70 : GROUND - 30,
+          collected: false,
+        });
+        s.coinSpawnIn = 180 + Math.floor(Math.random() * 200);
+      }
+
       s.obstacles.forEach(o => { o.x -= s.speed; });
       s.obstacles = s.obstacles.filter(o => o.x + o.w > 0);
 
-      // Скорость растёт
+      s.coins.forEach(c => { c.x -= s.speed; });
+      s.coins = s.coins.filter(c => c.x > -20 && !c.collected);
+
+      // Скорость
       s.speed = 6 + s.score / 200;
 
       // Очки
       s.score += 1;
       setScore(Math.floor(s.score / 5));
 
-      // Коллизия
-      const truckBox = { x: 60, y: s.y - 32, w: 66, h: 32 };
+      // Сбор монет
+      const truckBox = { x: 60, y: s.y - 36, w: 80, h: 36 };
+      for (const c of s.coins) {
+        if (!c.collected) {
+          const dx = (c.x) - (truckBox.x + truckBox.w / 2);
+          const dy = c.y - (truckBox.y + truckBox.h / 2);
+          if (Math.abs(dx) < truckBox.w / 2 + 9 && Math.abs(dy) < truckBox.h / 2 + 9) {
+            c.collected = true;
+            s.coinsCollected++;
+          }
+        }
+      }
+
+      // Коллизия с препятствиями
       for (const o of s.obstacles) {
         if (
-          truckBox.x < o.x + o.w &&
-          truckBox.x + truckBox.w > o.x &&
+          truckBox.x < o.x + o.w - 4 &&
+          truckBox.x + truckBox.w - 6 > o.x &&
           truckBox.y < GROUND &&
-          truckBox.y + truckBox.h > GROUND - o.h
+          truckBox.y + truckBox.h > GROUND - o.h + 4
         ) {
           s.over = true;
           s.running = false;
@@ -203,41 +380,78 @@ export default function TruckGame({ open, onClose }: Props) {
             setBest(final);
             localStorage.setItem("sined_truck_best", String(final));
           }
+          // Награда токенами: 1 токен за каждые 200 очков + по 1 за монетку
+          if (!s.tokenAwarded) {
+            const reward = Math.floor(final / 200) + s.coinsCollected;
+            if (reward > 0) {
+              addTokens(reward, "Игра «Бензовоз»: " + final + " очков, монет " + s.coinsCollected);
+              setTokensEarned(reward);
+              onTokens?.();
+            }
+            s.tokenAwarded = true;
+          }
           setOver(true);
           setRunning(false);
         }
       }
     }
 
-    // Отрисовка препятствий
+    // Рисуем
     s.obstacles.forEach(o => drawObstacle(ctx, o));
+    s.coins.forEach(c => drawCoin(ctx, c, s.frame));
+    drawTruck(ctx, 60, s.y, s.frame);
 
-    // Бензовоз
-    drawTruck(ctx, 60, s.y);
-
-    // Очки
+    // HUD
     ctx.fillStyle = "#0f172a";
-    ctx.font = "bold 18px 'Golos Text', monospace";
+    ctx.font = "bold 16px 'Golos Text', monospace";
     ctx.textAlign = "right";
-    ctx.fillText(`HI ${String(best).padStart(5, "0")}  ${String(Math.floor(s.score / 5)).padStart(5, "0")}`, W - 20, 30);
+    ctx.fillText(`HI ${String(best).padStart(5, "0")}  ${String(Math.floor(s.score / 5)).padStart(5, "0")}`, W - 20, 28);
     ctx.textAlign = "left";
 
+    // Монеты HUD
+    ctx.fillStyle = "#fbbf24";
+    ctx.beginPath();
+    ctx.arc(28, 24, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "#92400e";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = "#92400e";
+    ctx.font = "bold 10px sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("С", 28, 25);
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "bold 14px 'Golos Text'";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "alphabetic";
+    ctx.fillText(`× ${s.coinsCollected}`, 42, 30);
+
     if (s.over) {
-      ctx.fillStyle = "rgba(15,23,42,0.7)";
+      ctx.fillStyle = "rgba(15,23,42,0.78)";
       ctx.fillRect(0, 0, W, H);
       ctx.fillStyle = "#fff";
-      ctx.font = "bold 28px 'Golos Text', sans-serif";
+      ctx.font = "bold 26px 'Golos Text', sans-serif";
       ctx.textAlign = "center";
-      ctx.fillText("БУМ! Бензовоз разбился", W / 2, H / 2 - 10);
+      ctx.fillText("БУМ! Бензовоз разбился", W / 2, H / 2 - 24);
       ctx.font = "14px 'IBM Plex Mono', monospace";
-      ctx.fillText(`Очки: ${Math.floor(s.score / 5)}   Рекорд: ${best}`, W / 2, H / 2 + 18);
-      ctx.fillText("Пробел / клик / тап — снова", W / 2, H / 2 + 40);
+      ctx.fillText(`Очки: ${Math.floor(s.score / 5)} · Рекорд: ${best}`, W / 2, H / 2);
+      if (tokensEarned > 0) {
+        ctx.fillStyle = "#fbbf24";
+        ctx.font = "bold 16px 'Golos Text'";
+        ctx.fillText(`+${tokensEarned} СИНЕТ-токенов`, W / 2, H / 2 + 22);
+      }
+      ctx.fillStyle = "#fff";
+      ctx.font = "12px 'IBM Plex Mono', monospace";
+      ctx.fillText("Пробел / клик / тап — снова", W / 2, H / 2 + 44);
       ctx.textAlign = "left";
     } else if (!s.running) {
       ctx.fillStyle = "#0f172a";
       ctx.font = "bold 22px 'Golos Text', sans-serif";
       ctx.textAlign = "center";
       ctx.fillText("Жми ПРОБЕЛ или тап — поехали!", W / 2, H / 2);
+      ctx.font = "12px 'IBM Plex Mono'";
+      ctx.fillText("Собирай монеты СИНЕТ за прыжки", W / 2, H / 2 + 22);
       ctx.textAlign = "left";
     }
 
