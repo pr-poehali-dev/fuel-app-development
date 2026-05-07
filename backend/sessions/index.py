@@ -43,7 +43,15 @@ def send_telegram(bot_token: str, chat_id: str, text: str) -> bool:
     try:
         with urllib.request.urlopen(req, timeout=8) as resp:
             return resp.status == 200
-    except Exception:
+    except urllib.error.HTTPError as e:
+        try:
+            err_body = e.read().decode()
+            print(f"[Sessions Telegram ERROR {e.code}] {err_body[:500]}")
+        except Exception:
+            pass
+        return False
+    except Exception as ex:
+        print(f"[Sessions Telegram ERROR] {type(ex).__name__}: {ex}")
         return False
 
 

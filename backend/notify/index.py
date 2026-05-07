@@ -27,7 +27,15 @@ def send_telegram(bot_token: str, chat_id: str, text: str, reply_markup: dict = 
     try:
         with urllib.request.urlopen(req, timeout=10) as resp:
             return resp.status == 200
-    except Exception:
+    except urllib.error.HTTPError as e:
+        try:
+            err_body = e.read().decode()
+            print(f"[Telegram ERROR {e.code}] {err_body[:500]}")
+        except Exception:
+            pass
+        return False
+    except Exception as ex:
+        print(f"[Telegram ERROR] {type(ex).__name__}: {ex}")
         return False
 
 
@@ -124,22 +132,22 @@ def handler(event: dict, context) -> dict:
     tg_sent = False
     email_sent = False
 
-    # Кнопки прямой связи с клиентом
+    # Кнопки прямой связи с клиентом (Telegram разрешает только https и tg://)
     digits = "".join(c for c in str(phone) if c.isdigit())
     reply_markup = None
-    if digits:
-        buttons = []
-        buttons.append([
-            {"text": "📱 Позвонить", "url": f"tel:+{digits}"},
-            {"text": "💬 WhatsApp", "url": f"https://wa.me/{digits}"},
-        ])
-        buttons.append([
-            {"text": "✈️ Telegram", "url": f"https://t.me/+{digits}"},
-        ])
+    if digits and len(digits) >= 10:
+        # Если номер начинается с 8 — заменяем на 7 для wa.me
+        wa_digits = digits if not digits.startswith("8") else "7" + digits[1:]
+        buttons = [[
+            {"text": "💬 Написать в WhatsApp", "url": f"https://wa.me/{wa_digits}"},
+        ]]
         reply_markup = {"inline_keyboard": buttons}
 
     if bot_token and chat_id:
         tg_sent = send_telegram(bot_token, chat_id, tg_text, reply_markup)
+        # Если упало с разметкой — пробуем без неё
+        if not tg_sent and reply_markup:
+            tg_sent = send_telegram(bot_token, chat_id, tg_text, None)
 
     email_sent = send_email(f"Новая заявка от {name} — СИНЕД", email_html)
 
