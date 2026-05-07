@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Icon from "@/components/ui/icon";
 import { ORDERS_URL, Order, STATUS_LABEL, STATUS_ICON, STATUS_COLOR, formatDate, UserData } from "./types";
 import { isDemoMode, getDemoOrders, createDemoOrder, updateDemoOrder, nextStatus, resetDemo } from "./demoOrders";
+import TruckGame from "./games/TruckGame";
+import DiscountWheel from "./games/DiscountWheel";
 
 interface OrdersTabProps {
   user: UserData;
@@ -15,6 +17,8 @@ export default function OrdersTab({ user, selectedOrder, setSelectedOrder }: Ord
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const demo = isDemoMode();
+  const [showTruck, setShowTruck] = useState(false);
+  const [showWheel, setShowWheel] = useState(false);
 
   const reload = () => {
     if (demo) {
@@ -88,6 +92,16 @@ export default function OrdersTab({ user, selectedOrder, setSelectedOrder }: Ord
               className="flex items-center gap-1.5 bg-white hover:bg-amber-50 border border-amber-300 text-amber-800 text-xs font-golos font-semibold px-3 py-2 rounded-lg transition-colors">
               <Icon name="Map" size={13} />
               Открыть карту
+            </button>
+            <button onClick={() => setShowTruck(true)}
+              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-golos font-semibold px-3 py-2 rounded-lg transition-colors">
+              <Icon name="Gamepad2" size={13} />
+              Игра «Бензовоз»
+            </button>
+            <button onClick={() => setShowWheel(true)}
+              className="flex items-center gap-1.5 bg-gradient-to-r from-rose-600 to-amber-500 hover:opacity-90 text-white text-xs font-golos font-semibold px-3 py-2 rounded-lg transition-all">
+              <Icon name="Gift" size={13} />
+              Рулетка скидок
             </button>
             {orders.length > 0 && (
               <button onClick={handleResetDemo}
@@ -266,6 +280,9 @@ export default function OrdersTab({ user, selectedOrder, setSelectedOrder }: Ord
           })}
         </div>
       )}
+
+      <TruckGame open={showTruck} onClose={() => setShowTruck(false)} />
+      <DiscountWheel open={showWheel} onClose={() => setShowWheel(false)} />
     </div>
   );
 }
