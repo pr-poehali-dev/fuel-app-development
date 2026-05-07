@@ -2,6 +2,9 @@
   "tests": [
     {"name": "OPTIONS preflight", "method": "OPTIONS", "path": "/", "expectedStatus": 200},
     {"name": "Health check", "method": "GET", "path": "/", "expectedStatus": 200, "expectedBody": {"status": "ok"}, "bodyMatcher": "partial"},
-    {"name": "Block admin without token", "method": "GET", "path": "/?action=all", "expectedStatus": 403}
+    {"name": "Block admin without token", "method": "GET", "path": "/?action=all", "expectedStatus": 403},
+    {"name": "Block analytics without token", "method": "GET", "path": "/?action=analytics", "expectedStatus": 403},
+    {"name": "Block clients without token", "method": "GET", "path": "/?action=clients", "expectedStatus": 403},
+    {"name": "Block export without token", "method": "GET", "path": "/?action=export", "expectedStatus": 403}
   ]
 }

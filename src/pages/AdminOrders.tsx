@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
 import Icon from "@/components/ui/icon";
 import { ORDERS_URL, Order, STATUS_LABEL, STATUS_ICON, STATUS_COLOR, formatDate } from "./cabinet/types";
+import AdminAnalytics from "./admin/AdminAnalytics";
+import AdminClients from "./admin/AdminClients";
 
 interface Stats { total: number; pending: number; active: number; done: number }
+type TabKey = "orders" | "clients" | "analytics";
 
 export default function AdminOrders() {
   const [token, setToken] = useState<string>(() => localStorage.getItem("sined_admin_token") || "");
@@ -16,6 +19,35 @@ export default function AdminOrders() {
   const [filter, setFilter] = useState<string>("all");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<Order>>({});
+  const [tab, setTab] = useState<TabKey>("orders");
+  const [exporting, setExporting] = useState(false);
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const res = await fetch(`${ORDERS_URL}?action=export`, {
+        headers: { "X-Admin-Token": token },
+      });
+      if (!res.ok) {
+        alert("Ошибка экспорта: " + res.status);
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const stamp = new Date().toISOString().slice(0, 16).replace(/[:T-]/g, "");
+      a.download = `sined_orders_${stamp}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch {
+      alert("Не удалось выгрузить базу");
+    } finally {
+      setExporting(false);
+    }
+  };
 
   const handleLogin = async () => {
     if (!password.trim()) return;
@@ -118,6 +150,14 @@ export default function AdminOrders() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleExport}
+              disabled={exporting}
+              className="hidden sm:flex items-center gap-1.5 text-sm font-ibm text-white px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 transition-colors disabled:opacity-50"
+              title="Выгрузить всю базу заявок в CSV (Excel)">
+              <Icon name={exporting ? "Loader" : "Download"} size={14} className={exporting ? "animate-spin" : ""} />
+              {exporting ? "Готовим..." : "Выгрузить базу"}
+            </button>
             <button onClick={loadOrders} className="p-2 rounded-lg hover:bg-white/10 transition-colors" title="Обновить">
               <Icon name="RefreshCw" size={16} className={loading ? "animate-spin" : ""} />
             </button>
@@ -129,9 +169,39 @@ export default function AdminOrders() {
             </button>
           </div>
         </div>
+
+        {/* Табы */}
+        <div className="max-w-7xl mx-auto px-4 flex items-center gap-1 border-t border-white/10">
+          {([
+            { key: "orders", label: "Заявки", icon: "ClipboardList" },
+            { key: "clients", label: "Клиенты", icon: "Users" },
+            { key: "analytics", label: "Аналитика", icon: "BarChart3" },
+          ] as { key: TabKey; label: string; icon: string }[]).map(t => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`flex items-center gap-1.5 px-4 py-3 text-sm font-golos font-semibold transition-colors border-b-2
+                ${tab === t.key
+                  ? "border-[hsl(var(--sky))] text-white"
+                  : "border-transparent text-white/60 hover:text-white"}`}>
+              <Icon name={t.icon} size={14} />
+              {t.label}
+            </button>
+          ))}
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="sm:hidden ml-auto flex items-center gap-1.5 text-xs font-ibm text-white px-3 py-1.5 my-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50">
+            <Icon name={exporting ? "Loader" : "Download"} size={12} className={exporting ? "animate-spin" : ""} />
+            CSV
+          </button>
+        </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-6">
+        {tab === "analytics" && <AdminAnalytics token={token} />}
+        {tab === "clients" && <AdminClients token={token} />}
+        {tab === "orders" && (<>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           {[
             { key: "all", label: "Всего", val: stats.total, icon: "Layers", color: "text-[hsl(var(--navy))]" },
@@ -311,6 +381,7 @@ export default function AdminOrders() {
             </div>
           )}
         </div>
+        </>)}
       </div>
     </div>
   );
