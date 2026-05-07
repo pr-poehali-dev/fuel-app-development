@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Icon from "@/components/ui/icon";
@@ -15,25 +15,122 @@ const DRIVER = {
   progress: 68,
 };
 
+// Начальные координаты водителя (между СПб и Всеволожском)
+const START_COORDS = { lat: 60.02, lng: 30.55 };
+const END_COORDS = { lat: 60.0214, lng: 30.6974 }; // Всеволожск
+
 const waypoints = [
   { label: "Отправление", loc: "Склад СИНЕД, СПб", done: true },
   { label: "Контрольная точка", loc: "КАД, выезд на Всеволожск", done: true },
   { label: "Пункт назначения", loc: "Всеволожск, ул. Плоткина, 12", done: false },
 ];
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+declare global {
+  interface Window {
+    ymaps: any;
+  }
+}
+
 export default function MapPage() {
   const navigate = useNavigate();
-  const [truckPos, setTruckPos] = useState({ x: 52, y: 55 });
-  const [pingAnim, setPingAnim] = useState(true);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const ymapsRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
+  const [driverPos, setDriverPos] = useState(START_COORDS);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [mapError, setMapError] = useState(false);
+
+  // Load Yandex Maps script
+  useEffect(() => {
+    const apiKey = (import.meta as any).env?.VITE_YANDEX_MAPS_KEY || "";
+
+    if (window.ymaps) {
+      initMap();
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = `https://api-maps.yandex.ru/2.1/?apikey=${apiKey}&lang=ru_RU`;
+    script.async = true;
+    script.onload = () => {
+      window.ymaps.ready(initMap);
+    };
+    script.onerror = () => setMapError(true);
+    document.head.appendChild(script);
+
+    return () => {
+      // cleanup
+    };
+  }, []);
+
+  function initMap() {
+    if (!mapRef.current) return;
+
+    try {
+      const map = new window.ymaps.Map(mapRef.current, {
+        center: [START_COORDS.lat, START_COORDS.lng],
+        zoom: 11,
+        controls: ["zoomControl"],
+      });
+
+      ymapsRef.current = map;
+
+      // Destination placemark
+      const destMark = new window.ymaps.Placemark(
+        [END_COORDS.lat, END_COORDS.lng],
+        { balloonContent: "Пункт назначения: " + DRIVER.destination },
+        {
+          preset: "islands#redDotIcon",
+        }
+      );
+      map.geoObjects.add(destMark);
+
+      // Driver placemark
+      const driverMark = new window.ymaps.Placemark(
+        [START_COORDS.lat, START_COORDS.lng],
+        { balloonContent: `Водитель: ${DRIVER.name}<br>${DRIVER.vehicle} ${DRIVER.plate}` },
+        {
+          preset: "islands#blueDeliveryCircleIcon",
+        }
+      );
+      map.geoObjects.add(driverMark);
+      markerRef.current = driverMark;
+
+      // Route
+      window.ymaps.route([
+        [59.943543, 30.3], // Склад СПб
+        [START_COORDS.lat, START_COORDS.lng],
+        [END_COORDS.lat, END_COORDS.lng],
+      ]).then((route: any) => {
+        route.getPaths().options.set({
+          strokeColor: "1A7AC8",
+          strokeWidth: 4,
+          opacity: 0.7,
+        });
+        map.geoObjects.add(route);
+      });
+
+      setMapLoaded(true);
+    } catch {
+      setMapError(true);
+    }
+  }
 
   // Simulate truck movement
   useEffect(() => {
     const interval = setInterval(() => {
-      setTruckPos((p) => ({
-        x: Math.max(30, Math.min(70, p.x + (Math.random() - 0.48) * 1.2)),
-        y: Math.max(30, Math.min(70, p.y + (Math.random() - 0.52) * 1.0)),
-      }));
-    }, 2500);
+      setDriverPos((prev) => {
+        const newPos = {
+          lat: prev.lat + (END_COORDS.lat - prev.lat) * 0.02 + (Math.random() - 0.5) * 0.001,
+          lng: prev.lng + (END_COORDS.lng - prev.lng) * 0.02 + (Math.random() - 0.5) * 0.001,
+        };
+        if (markerRef.current) {
+          markerRef.current.geometry.setCoordinates([newPos.lat, newPos.lng]);
+        }
+        return newPos;
+      });
+    }, 3000);
     return () => clearInterval(interval);
   }, []);
 
@@ -60,84 +157,59 @@ export default function MapPage() {
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Map */}
-          <div className="lg:col-span-2">
-            <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden shadow-lg border-2 border-[hsl(var(--border))] bg-[hsl(var(--navy))] animate-fade-in">
-              {/* Map grid background */}
-              <div className="absolute inset-0 map-grid opacity-30" />
+          <div className="lg:col-span-2 space-y-4">
+            <div className="relative w-full rounded-2xl overflow-hidden shadow-lg border border-[hsl(var(--border))] animate-fade-in" style={{ height: "440px" }}>
+              {/* Yandex Map container */}
+              <div ref={mapRef} className="w-full h-full" />
 
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-[hsl(var(--navy)/0.2)] to-transparent" />
-
-              {/* SVG route */}
-              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                {/* Road */}
-                <path
-                  d={`M 20 75 Q 35 65 45 55 Q 55 45 65 35 Q 72 28 80 25`}
-                  stroke="hsl(200 80% 60%)"
-                  strokeWidth="0.6"
-                  strokeDasharray="2 1"
-                  fill="none"
-                  opacity="0.5"
-                />
-                {/* Completed route */}
-                <path
-                  d={`M 20 75 Q 35 65 ${truckPos.x} ${truckPos.y}`}
-                  stroke="hsl(172 60% 35%)"
-                  strokeWidth="0.8"
-                  fill="none"
-                  opacity="0.9"
-                />
-              </svg>
-
-              {/* Start point */}
-              <div className="absolute" style={{ left: "18%", top: "72%", transform: "translate(-50%,-50%)" }}>
-                <div className="w-4 h-4 rounded-full bg-[hsl(var(--teal))] border-2 border-white shadow-lg flex items-center justify-center">
-                  <div className="w-1.5 h-1.5 rounded-full bg-white" />
+              {/* Loading state */}
+              {!mapLoaded && !mapError && (
+                <div className="absolute inset-0 bg-[hsl(var(--navy))] flex items-center justify-center">
+                  <div className="map-grid absolute inset-0 opacity-20" />
+                  <div className="relative text-center text-white">
+                    <Icon name="MapPin" size={40} className="mx-auto mb-3 opacity-60 animate-pulse" />
+                    <p className="font-golos font-bold">Загрузка карты...</p>
+                    <p className="font-ibm text-xs text-[hsl(var(--sky)/0.6)] mt-1">Яндекс.Карты</p>
+                  </div>
                 </div>
+              )}
+
+              {/* Error / no key state */}
+              {mapError && (
+                <div className="absolute inset-0 bg-[hsl(var(--navy))] flex items-center justify-center">
+                  <div className="map-grid absolute inset-0 opacity-20" />
+                  <div className="relative text-center text-white px-6">
+                    <Icon name="Map" size={40} className="mx-auto mb-3 opacity-60" />
+                    <p className="font-golos font-bold mb-1">Карта недоступна</p>
+                    <p className="font-ibm text-xs text-[hsl(var(--sky)/0.6)]">
+                      Добавьте ключ Яндекс.Карт в настройках
+                    </p>
+                  </div>
+                  {/* Fallback animated truck */}
+                  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <path d="M15 75 Q 40 60 55 50 Q 70 40 85 25" stroke="hsl(200 80% 60%)" strokeWidth="0.6" strokeDasharray="2 1" fill="none" opacity="0.4" />
+                  </svg>
+                </div>
+              )}
+
+              {/* ETA badge overlay */}
+              <div className="absolute bottom-3 right-3 bg-white rounded-xl shadow-lg px-4 py-2 text-right z-10">
+                <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))]">До прибытия</div>
+                <div className="font-golos font-black text-[hsl(var(--ocean))] text-xl">{DRIVER.eta}</div>
               </div>
 
-              {/* End point */}
-              <div className="absolute" style={{ left: "80%", top: "24%", transform: "translate(-50%,-100%)" }}>
-                <div className="bg-white rounded-lg px-2 py-1 shadow-lg text-[10px] font-ibm font-semibold text-[hsl(var(--navy))] whitespace-nowrap mb-1">
-                  Пункт назначения
-                </div>
-                <div className="w-4 h-4 rounded-full bg-red-500 border-2 border-white shadow-lg mx-auto" />
-              </div>
-
-              {/* Truck */}
-              <div
-                className="absolute transition-all duration-[2400ms] ease-in-out"
-                style={{
-                  left: `${truckPos.x}%`,
-                  top: `${truckPos.y}%`,
-                  transform: "translate(-50%, -50%)",
-                }}
-              >
-                {/* Ping */}
-                <div className="absolute inset-0 w-10 h-10 rounded-full bg-[hsl(var(--ocean)/0.3)] -translate-x-1 -translate-y-1 animate-ping" />
-                <div className="relative w-8 h-8 bg-[hsl(var(--ocean))] rounded-xl shadow-xl flex items-center justify-center border-2 border-white">
-                  <Icon name="Truck" size={16} className="text-white" />
-                </div>
-              </div>
-
-              {/* Map label */}
-              <div className="absolute top-3 left-3 bg-[hsl(var(--navy)/0.8)] backdrop-blur-sm text-white rounded-xl px-3 py-2">
+              {/* GPS badge */}
+              <div className="absolute top-3 left-3 bg-[hsl(var(--navy)/0.85)] backdrop-blur-sm text-white rounded-xl px-3 py-2 z-10">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse-dot" />
                   <span className="font-golos font-bold text-xs">GPS активен</span>
                 </div>
-                <div className="font-ibm text-[10px] text-[hsl(var(--sky)/0.7)] mt-0.5">Обновлено: только что</div>
-              </div>
-
-              {/* ETA badge */}
-              <div className="absolute bottom-3 right-3 bg-white rounded-xl shadow-lg px-4 py-2 text-right">
-                <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))]">До прибытия</div>
-                <div className="font-golos font-black text-[hsl(var(--ocean))] text-xl">{DRIVER.eta}</div>
+                <div className="font-ibm text-[10px] text-[hsl(var(--sky)/0.7)] mt-0.5">Обновляется каждые 30 сек</div>
               </div>
             </div>
 
             {/* Route waypoints */}
-            <div className="card-glass mt-4 p-5 animate-fade-in" style={{ animationDelay: "0.15s" }}>
+            <div className="card-glass p-5 animate-fade-in" style={{ animationDelay: "0.15s" }}>
               <h3 className="font-golos font-bold text-[hsl(var(--navy))] text-sm mb-4">Маршрут</h3>
               <div className="space-y-3">
                 {waypoints.map((wp, i) => (
@@ -147,7 +219,7 @@ export default function MapPage() {
                         {wp.done ? <Icon name="Check" size={10} className="text-white" /> : <div className="w-1.5 h-1.5 rounded-full bg-[hsl(var(--muted-foreground))]" />}
                       </div>
                       {i < waypoints.length - 1 && (
-                        <div className={`w-px flex-1 h-6 mt-1 ${wp.done ? "bg-[hsl(var(--ocean)/0.3)]" : "bg-[hsl(var(--border))]"}`} />
+                        <div className={`w-px h-6 mt-1 ${wp.done ? "bg-[hsl(var(--ocean)/0.3)]" : "bg-[hsl(var(--border))]"}`} />
                       )}
                     </div>
                     <div className="pb-2">
@@ -165,7 +237,7 @@ export default function MapPage() {
             {/* Driver card */}
             <div className="card-glass p-5">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--teal))] flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[hsl(var(--ocean))] to-[hsl(var(--teal))] flex items-center justify-center shadow">
                   <Icon name="User" size={22} className="text-white" />
                 </div>
                 <div>
@@ -206,33 +278,30 @@ export default function MapPage() {
                   <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))]">Адрес доставки</div>
                   <div className="font-golos font-semibold text-[hsl(var(--navy))] text-sm">{DRIVER.destination}</div>
                 </div>
-                {/* Progress */}
                 <div>
                   <div className="flex justify-between mb-1.5">
-                    <span className="font-ibm text-xs text-[hsl(var(--muted-foreground))]">Прогресс маршрута</span>
+                    <span className="font-ibm text-xs text-[hsl(var(--muted-foreground))]">Прогресс</span>
                     <span className="font-golos font-bold text-[hsl(var(--ocean))] text-xs">{DRIVER.progress}%</span>
                   </div>
                   <div className="h-2 bg-[hsl(var(--muted))] rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-[hsl(var(--ocean))] to-[hsl(var(--teal))] rounded-full transition-all duration-500"
-                      style={{ width: `${DRIVER.progress}%` }}
-                    />
+                    <div className="h-full bg-gradient-to-r from-[hsl(var(--ocean))] to-[hsl(var(--teal))] rounded-full transition-all duration-500"
+                      style={{ width: `${DRIVER.progress}%` }} />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Quick contact */}
+            {/* Support */}
             <div className="card-glass p-5">
               <h3 className="font-golos font-bold text-[hsl(var(--navy))] text-sm mb-3">Поддержка СИНЕД</h3>
               <div className="space-y-2">
                 <a href="tel:+78121234567"
-                  className="flex items-center gap-2 w-full py-2.5 rounded-xl bg-[hsl(var(--navy))] text-white text-sm font-ibm font-medium hover:bg-[hsl(var(--ocean))] transition-colors justify-center">
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[hsl(var(--navy))] text-white text-sm font-ibm font-medium hover:bg-[hsl(var(--ocean))] transition-colors">
                   <Icon name="Phone" size={15} />
                   +7 (812) 123-45-67
                 </a>
                 <a href="https://t.me/sined_fuel" target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 w-full py-2.5 rounded-xl bg-[hsl(var(--ice))] border border-[hsl(var(--ocean)/0.2)] text-[hsl(var(--ocean))] text-sm font-ibm font-medium hover:bg-[hsl(var(--ocean))] hover:text-white transition-all justify-center">
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[hsl(var(--ice))] border border-[hsl(var(--ocean)/0.2)] text-[hsl(var(--ocean))] text-sm font-ibm font-medium hover:bg-[hsl(var(--ocean))] hover:text-white transition-all">
                   Написать в Telegram
                 </a>
               </div>
