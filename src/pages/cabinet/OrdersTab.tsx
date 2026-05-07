@@ -10,98 +10,121 @@ interface OrdersTabProps {
 export default function OrdersTab({ selectedOrder, setSelectedOrder }: OrdersTabProps) {
   const navigate = useNavigate();
 
+  const total = mockOrders.length;
+  const active = mockOrders.filter(o => o.status === "active").length;
+  const done = mockOrders.filter(o => o.status === "done").length;
+
   return (
     <div className="animate-fade-in">
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        {[
-          { label: "Всего заявок", val: "3", icon: "FileText", color: "text-[hsl(var(--ocean))]" },
-          { label: "В работе", val: "1", icon: "Truck", color: "text-blue-600" },
-          { label: "Выполнено", val: "1", icon: "CheckCircle", color: "text-emerald-600" },
-        ].map((s) => (
-          <div key={s.label} className="card-glass p-4 text-center">
-            <Icon name={s.icon} size={22} className={`${s.color} mx-auto mb-2`} />
-            <div className="font-golos font-black text-[hsl(var(--navy))] text-2xl">{s.val}</div>
-            <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mt-0.5">{s.label}</div>
+
+      {/* Компактная сводка строкой */}
+      <div className="flex items-center justify-between mb-5 bg-[hsl(var(--muted)/0.6)] rounded-xl px-5 py-3">
+        <div className="flex items-center gap-6">
+          <div>
+            <div className="font-golos font-bold text-[hsl(var(--navy))] text-lg leading-none">{total}</div>
+            <div className="font-ibm text-[10px] text-[hsl(var(--muted-foreground))] mt-1 uppercase tracking-wider">всего</div>
           </div>
-        ))}
+          <div className="w-px h-8 bg-[hsl(var(--border))]" />
+          <div>
+            <div className="font-golos font-bold text-blue-600 text-lg leading-none">{active}</div>
+            <div className="font-ibm text-[10px] text-[hsl(var(--muted-foreground))] mt-1 uppercase tracking-wider">в&nbsp;пути</div>
+          </div>
+          <div className="w-px h-8 bg-[hsl(var(--border))]" />
+          <div>
+            <div className="font-golos font-bold text-emerald-600 text-lg leading-none">{done}</div>
+            <div className="font-ibm text-[10px] text-[hsl(var(--muted-foreground))] mt-1 uppercase tracking-wider">готово</div>
+          </div>
+        </div>
+        <button
+          onClick={() => navigate("/chat")}
+          className="flex items-center gap-1.5 bg-[hsl(var(--navy))] text-white text-sm font-ibm font-medium px-4 py-2 rounded-lg hover:bg-[hsl(var(--navy)/0.9)] transition-colors">
+          <Icon name="Plus" size={15} />
+          Новая
+        </button>
       </div>
 
-      {/* New order button */}
-      <button onClick={() => navigate("/chat")}
-        className="w-full mb-4 flex items-center justify-center gap-2 py-3.5 rounded-xl border-2 border-dashed border-[hsl(var(--ocean)/0.4)] text-[hsl(var(--ocean))] hover:bg-[hsl(var(--ice))] transition-colors font-ibm font-medium text-sm">
-        <Icon name="Plus" size={18} />
-        Новая заявка
-      </button>
-
-      {/* Orders list */}
-      <div className="space-y-3">
+      {/* Лаконичный список */}
+      <div className="space-y-2">
         {mockOrders.map((order, i) => {
           const sc = statusConfig[order.status];
           const isSelected = selectedOrder === order.id;
           return (
-            <div key={order.id} className="animate-fade-in" style={{ animationDelay: `${i * 0.07}s` }}>
-              <div
+            <div
+              key={order.id}
+              className="animate-fade-in bg-white border border-[hsl(var(--border))] rounded-xl overflow-hidden hover:border-[hsl(var(--ocean)/0.3)] transition-colors"
+              style={{ animationDelay: `${i * 0.05}s` }}>
+              <button
                 onClick={() => setSelectedOrder(isSelected ? null : order.id)}
-                className={`card-glass p-5 cursor-pointer transition-all duration-200 hover:shadow-md border-2 ${isSelected ? "border-[hsl(var(--ocean)/0.4)]" : "border-transparent"}`}>
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="font-golos font-bold text-[hsl(var(--navy))] text-sm">{order.id}</span>
-                      <span className={`status-badge ${order.status === "done" ? "status-done" : order.status === "active" ? "status-active" : "status-pending"}`}>
-                        <Icon name={sc.icon} size={11} />
-                        {sc.label}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                      <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))]">
-                        <span className="text-[hsl(var(--navy))] font-medium">{order.fuel}</span>
-                      </div>
-                      <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))]">
-                        Объём: <span className="text-[hsl(var(--navy))] font-medium">{order.volume}</span>
-                      </div>
-                      <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))] truncate col-span-2">
-                        <Icon name="MapPin" size={11} className="inline mr-1" />
-                        {order.address}
-                      </div>
-                    </div>
+                className="w-full flex items-center gap-4 px-5 py-4 text-left">
+                {/* Иконка статуса */}
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
+                  order.status === "done" ? "bg-emerald-50 text-emerald-600" :
+                  order.status === "active" ? "bg-blue-50 text-blue-600" :
+                  "bg-amber-50 text-amber-600"
+                }`}>
+                  <Icon name={sc.icon} size={16} />
+                </div>
+
+                {/* Основная инфа */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="font-golos font-bold text-[hsl(var(--navy))] text-sm">{order.fuel}</span>
+                    <span className="text-[hsl(var(--muted-foreground))] text-xs font-ibm">·</span>
+                    <span className="font-ibm text-xs text-[hsl(var(--muted-foreground))]">{order.volume}</span>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))]">{order.date}</div>
-                    {order.status === "active" && (
-                      <button onClick={(e) => { e.stopPropagation(); navigate("/map"); }}
-                        className="mt-2 flex items-center gap-1 text-xs font-ibm text-[hsl(var(--ocean))] hover:underline">
-                        <Icon name="Navigation" size={12} />
-                        На карте
-                      </button>
-                    )}
+                  <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))] truncate">
+                    {order.address}
                   </div>
                 </div>
 
-                {/* Expanded details */}
-                {isSelected && (
-                  <div className="mt-4 pt-4 border-t border-[hsl(var(--border))] animate-fade-in">
-                    <div className="grid sm:grid-cols-2 gap-3">
-                      <div className="bg-[hsl(var(--muted))] rounded-xl p-3">
-                        <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-1">Водитель</div>
-                        <div className="font-golos font-bold text-[hsl(var(--navy))] text-sm">{order.driver}</div>
-                        <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))]">{order.vehicle}</div>
-                      </div>
-                      <div className="bg-[hsl(var(--muted))] rounded-xl p-3">
-                        <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))] mb-1">Стоимость</div>
-                        <div className="font-golos font-bold text-[hsl(var(--navy))] text-sm">{order.price}</div>
-                      </div>
-                    </div>
-                    {order.status === "active" && (
-                      <button onClick={(e) => { e.stopPropagation(); navigate("/map"); }}
-                        className="mt-3 w-full btn-primary py-2.5 text-sm flex items-center justify-center gap-2">
-                        <Icon name="Map" size={15} />
-                        Отследить на карте
-                      </button>
-                    )}
+                {/* Дата + стрелка */}
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <div className="text-right hidden sm:block">
+                    <div className="font-ibm text-xs text-[hsl(var(--muted-foreground))]">{order.date}</div>
+                    <div className={`font-golos text-[10px] mt-0.5 font-semibold ${
+                      order.status === "done" ? "text-emerald-600" :
+                      order.status === "active" ? "text-blue-600" :
+                      "text-amber-600"
+                    }`}>{sc.label}</div>
                   </div>
-                )}
-              </div>
+                  <Icon
+                    name={isSelected ? "ChevronUp" : "ChevronDown"}
+                    size={16}
+                    className="text-[hsl(var(--muted-foreground))]" />
+                </div>
+              </button>
+
+              {/* Раскрытые детали */}
+              {isSelected && (
+                <div className="px-5 pb-4 pt-1 border-t border-[hsl(var(--border))] bg-[hsl(var(--muted)/0.3)] animate-fade-in">
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-2.5 mt-3 text-sm">
+                    <div>
+                      <div className="font-ibm text-[10px] text-[hsl(var(--muted-foreground))] uppercase tracking-wider mb-0.5">Номер</div>
+                      <div className="font-golos font-semibold text-[hsl(var(--navy))]">{order.id}</div>
+                    </div>
+                    <div>
+                      <div className="font-ibm text-[10px] text-[hsl(var(--muted-foreground))] uppercase tracking-wider mb-0.5">Стоимость</div>
+                      <div className="font-golos font-semibold text-[hsl(var(--navy))]">{order.price}</div>
+                    </div>
+                    <div>
+                      <div className="font-ibm text-[10px] text-[hsl(var(--muted-foreground))] uppercase tracking-wider mb-0.5">Водитель</div>
+                      <div className="font-golos font-semibold text-[hsl(var(--navy))]">{order.driver}</div>
+                    </div>
+                    <div>
+                      <div className="font-ibm text-[10px] text-[hsl(var(--muted-foreground))] uppercase tracking-wider mb-0.5">Транспорт</div>
+                      <div className="font-golos font-semibold text-[hsl(var(--navy))] text-xs">{order.vehicle}</div>
+                    </div>
+                  </div>
+                  {order.status === "active" && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); navigate("/map"); }}
+                      className="mt-4 w-full bg-[hsl(var(--ocean))] hover:bg-[hsl(var(--ocean)/0.9)] text-white py-2.5 rounded-lg text-sm font-ibm font-medium flex items-center justify-center gap-2 transition-colors">
+                      <Icon name="Navigation" size={15} />
+                      Отследить на карте
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           );
         })}
