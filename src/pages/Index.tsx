@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Icon from "@/components/ui/icon";
+import CallbackModal from "@/components/CallbackModal";
 
 const PRICES_URL = "https://functions.poehali.dev/cb3618e5-4d1d-41cf-b3ad-80626a79623b";
 
@@ -74,6 +75,7 @@ export default function Index() {
   const [prices, setPrices] = useState<FuelPrice[]>([]);
   const [pricesUpdated, setPricesUpdated] = useState("");
   const [pricesLoading, setPricesLoading] = useState(true);
+  const [callbackOpen, setCallbackOpen] = useState(false);
 
   useEffect(() => {
     fetch(PRICES_URL).then(r => r.json()).then(d => {
@@ -117,13 +119,21 @@ export default function Index() {
             </p>
 
             <div className="flex flex-wrap gap-3 mb-10">
-              <button onClick={() => navigate("/chat")}
-                className="btn-green flex items-center gap-2 text-base px-7 py-3.5">
+              <button
+                onClick={() => navigate("/chat")}
+                className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[hsl(var(--ocean))] hover:bg-[hsl(var(--ocean)/0.85)] text-white font-golos font-semibold text-base shadow-lg shadow-[hsl(var(--ocean)/0.3)] transition-all hover:-translate-y-0.5">
                 <Icon name="MessageSquare" size={18} />
                 Оставить заявку
               </button>
-              <a href="tel:+79052150560"
-                className="flex items-center gap-2 px-7 py-3.5 rounded-xl border-2 border-white/40 font-golos font-semibold hover:bg-white/10 transition-colors text-base text-green-50">
+              <button
+                onClick={() => setCallbackOpen(true)}
+                className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[hsl(var(--ocean))] hover:bg-[hsl(var(--ocean)/0.85)] text-white font-golos font-semibold text-base shadow-lg shadow-[hsl(var(--ocean)/0.3)] transition-all hover:-translate-y-0.5">
+                <Icon name="PhoneCall" size={18} />
+                Обратная связь
+              </button>
+              <a
+                href="tel:+79052150560"
+                className="flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[hsl(var(--ocean))] hover:bg-[hsl(var(--ocean)/0.85)] text-white font-golos font-semibold text-base shadow-lg shadow-[hsl(var(--ocean)/0.3)] transition-all hover:-translate-y-0.5">
                 <Icon name="Phone" size={18} />
                 +7 (905) 215-05-60
               </a>
@@ -449,6 +459,8 @@ export default function Index() {
           </div>
         </div>
       </footer>
+
+      <CallbackModal open={callbackOpen} onClose={() => setCallbackOpen(false)} />
     </div>
   );
 }
